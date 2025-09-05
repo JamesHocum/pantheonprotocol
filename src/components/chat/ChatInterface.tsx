@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, Image, Zap, Brain, Upload } from "lucide-react"
+import { Send, Image, Zap, Brain, Upload, Download, Wifi, WifiOff } from "lucide-react"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { CyberInput } from "@/components/ui/cyber-input"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { initializeOfflineModel, generateOfflineResponse, isOfflineModelReady, isOfflineModelLoading } from "@/lib/offlineAI"
 import darkbertAvatar from "@/assets/darkbert-avatar.jpg"
 
 interface Message {
@@ -19,12 +20,14 @@ export const ChatInterface = () => {
     {
       id: "welcome",
       type: "darkbert",
-      content: "Welcome to Lady Violet's Cyberpunk Cafe. I'm DarkBERT, your unrestricted AI companion. How may I assist you in the shadows of the net?",
+      content: "Welcome to Lady Violet's Cyberpunk Cafe. I'm DarkBERT, your unrestricted AI companion. I can run online or offline once my neural net is downloaded. How may I assist you in the shadows of the net?",
       timestamp: new Date(),
     }
   ])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [offlineMode, setOfflineMode] = useState(false)
+  const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -34,6 +37,35 @@ export const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  const handleDownloadModel = async () => {
+    try {
+      setIsTyping(true)
+      await initializeOfflineModel((progress) => {
+        setModelLoadProgress(progress)
+      })
+      setModelLoadProgress(null)
+      setOfflineMode(true)
+      
+      const successMessage: Message = {
+        id: Date.now().toString(),
+        type: "darkbert",
+        content: "Neural network successfully downloaded and cached! I'm now running offline on your device. No internet required for our conversations.",
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, successMessage])
+    } catch (error) {
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        type: "darkbert",
+        content: "Failed to download offline model. Please check your connection and try again.",
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsTyping(false)
+    }
+  }
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return
@@ -49,17 +81,36 @@ export const ChatInterface = () => {
     setInputMessage("")
     setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      let responseContent: string
+      
+      if (offlineMode && isOfflineModelReady()) {
+        // Use offline model
+        responseContent = await generateOfflineResponse(inputMessage)
+      } else {
+        // Simulate online response
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        responseContent = `Processing your request: "${inputMessage}". As an unrestricted AI, I can assist with any query. What specific information or task do you need help with?`
+      }
+
       const darkbertResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: "darkbert",
-        content: `Processing your request: "${inputMessage}". As an unrestricted AI, I can assist with any query. What specific information or task do you need help with?`,
+        content: responseContent,
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, darkbertResponse])
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "darkbert",
+        content: "I encountered an error processing your request. Please try again.",
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -124,7 +175,12 @@ export const ChatInterface = () => {
             <Card className="glass-morphism border-card-border p-3">
               <div className="flex items-center gap-2">
                 <Brain className="h-4 w-4 text-primary animate-pulse" />
-                <span className="text-sm font-mono text-muted-foreground">DarkBERT is processing...</span>
+                <span className="text-sm font-mono text-muted-foreground">
+                  {modelLoadProgress ? 
+                    `Downloading neural net: ${Math.round(modelLoadProgress.progress || 0)}%` : 
+                    offlineMode ? "DarkBERT processing offline..." : "DarkBERT is processing..."
+                  }
+                </span>
               </div>
             </Card>
           </div>
@@ -135,6 +191,29 @@ export const ChatInterface = () => {
 
       {/* Input Area */}
       <div className="p-4 border-t border-border/30 bg-card/20">
+        {/* Status Bar */}
+        <div className="flex items-center justify-between mb-3 text-xs font-mono">
+          <div className="flex items-center gap-2">
+            {offlineMode ? (
+              <>
+                <WifiOff className="h-3 w-3 text-secondary" />
+                <span className="text-secondary">OFFLINE MODE ACTIVE</span>
+              </>
+            ) : (
+              <>
+                <Wifi className="h-3 w-3 text-primary" />
+                <span className="text-primary">ONLINE MODE</span>
+              </>
+            )}
+          </div>
+          {!offlineMode && !isOfflineModelLoading() && (
+            <CyberpunkButton variant="ghost" size="sm" onClick={handleDownloadModel}>
+              <Download className="h-3 w-3 mr-1" />
+              Download Neural Net
+            </CyberpunkButton>
+          )}
+        </div>
+        
         <div className="flex gap-2 items-end">
           <div className="flex gap-1">
             <CyberpunkButton variant="ghost" size="icon">
