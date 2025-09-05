@@ -3,6 +3,7 @@ import { CyberHeader } from "@/components/layout/CyberHeader"
 import { ChatInterface } from "@/components/chat/ChatInterface"
 import { ImageGeneration } from "@/components/features/ImageGeneration"
 import { UserAvatar } from "@/components/features/UserAvatar"
+import { InstallPrompt } from "@/components/ui/install-prompt"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MessageSquare, Image, User, Brain } from "lucide-react"
 
@@ -71,6 +72,7 @@ const Index = () => {
           </Tabs>
         </div>
       </div>
+      <InstallPrompt />
     </div>
   );
 };
