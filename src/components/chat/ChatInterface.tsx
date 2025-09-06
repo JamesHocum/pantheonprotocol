@@ -5,6 +5,8 @@ import { CyberInput } from "@/components/ui/cyber-input"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { initializeOfflineModel, generateOfflineResponse, isOfflineModelReady, isOfflineModelLoading } from "@/lib/offlineAI"
+import { assistants, type AssistantKey } from "@/lib/assistants"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import darkbertAvatar from "@/assets/darkbert-avatar.jpg"
 
 interface Message {
@@ -13,21 +15,24 @@ interface Message {
   content: string
   timestamp: Date
   avatar?: string
+  assistantKey?: AssistantKey
 }
 
 export const ChatInterface = () => {
-  const [messages, setMessages] = useState<Message[]>([
+const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       type: "darkbert",
-      content: "Welcome to Lady Violet's Cyberpunk Cafe. I'm DarkBERT, your unrestricted AI companion. I can run online or offline once my neural net is downloaded. How may I assist you in the shadows of the net?",
+      assistantKey: "darkbert",
+      content: "Welcome to Lady Violet's Cyberpunk Cafe. I'm DarkBERT. I can run online or offline once my neural net is downloaded. How may I assist you today?",
       timestamp: new Date(),
     }
   ])
-  const [inputMessage, setInputMessage] = useState("")
+const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [offlineMode, setOfflineMode] = useState(false)
   const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
+  const [assistantKey, setAssistantKey] = useState<AssistantKey>("darkbert")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -47,9 +52,10 @@ export const ChatInterface = () => {
       setModelLoadProgress(null)
       setOfflineMode(true)
       
-      const successMessage: Message = {
+const successMessage: Message = {
         id: Date.now().toString(),
         type: "darkbert",
+        assistantKey,
         content: "Neural network successfully downloaded and cached! I'm now running offline on your device. No internet required for our conversations.",
         timestamp: new Date(),
       }
@@ -84,18 +90,21 @@ export const ChatInterface = () => {
     try {
       let responseContent: string
       
-      if (offlineMode && isOfflineModelReady()) {
-        // Use offline model
-        responseContent = await generateOfflineResponse(inputMessage)
+if (offlineMode && isOfflineModelReady()) {
+        // Use offline model with selected assistant system prompt
+        responseContent = await generateOfflineResponse(inputMessage, {
+          systemPrompt: assistants[assistantKey].systemPrompt,
+        })
       } else {
-        // Simulate online response
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        responseContent = `Processing your request: "${inputMessage}". As an unrestricted AI, I can assist with any query. What specific information or task do you need help with?`
+// Simulate online response
+        await new Promise(resolve => setTimeout(resolve, 1200))
+        responseContent = `${assistants[assistantKey].name} acknowledging: "${inputMessage}". How can I help you further?`
       }
 
-      const darkbertResponse: Message = {
+const darkbertResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: "darkbert",
+        assistantKey,
         content: responseContent,
         timestamp: new Date(),
       }
@@ -145,8 +154,8 @@ export const ChatInterface = () => {
                 : "glass-morphism border-card-border"
             }`}>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant={message.type === "user" ? "default" : "secondary"} className="text-xs">
-                  {message.type === "user" ? "USER" : "DarkBERT"}
+<Badge variant={message.type === "user" ? "default" : "secondary"} className="text-xs">
+                  {message.type === "user" ? "USER" : (assistants[message.assistantKey ?? "darkbert"].name)}
                 </Badge>
                 <span className="text-xs text-muted-foreground font-mono">
                   {message.timestamp.toLocaleTimeString()}
@@ -176,9 +185,9 @@ export const ChatInterface = () => {
               <div className="flex items-center gap-2">
                 <Brain className="h-4 w-4 text-primary animate-pulse" />
                 <span className="text-sm font-mono text-muted-foreground">
-                  {modelLoadProgress ? 
+{modelLoadProgress ? 
                     `Downloading neural net: ${Math.round(modelLoadProgress.progress || 0)}%` : 
-                    offlineMode ? "DarkBERT processing offline..." : "DarkBERT is processing..."
+                    offlineMode ? `${assistants[assistantKey].name} processing offline...` : `${assistants[assistantKey].name} is processing...`
                   }
                 </span>
               </div>
@@ -191,9 +200,9 @@ export const ChatInterface = () => {
 
       {/* Input Area */}
       <div className="p-4 border-t border-border/30 bg-card/20">
-        {/* Status Bar */}
+{/* Status Bar */}
         <div className="flex items-center justify-between mb-3 text-xs font-mono">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {offlineMode ? (
               <>
                 <WifiOff className="h-3 w-3 text-secondary" />
@@ -205,6 +214,21 @@ export const ChatInterface = () => {
                 <span className="text-primary">ONLINE MODE</span>
               </>
             )}
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Assistant:</span>
+              <Select value={assistantKey} onValueChange={(v) => setAssistantKey(v as AssistantKey)}>
+                <SelectTrigger className="w-[160px] h-8">
+                  <SelectValue placeholder="Choose assistant" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="darkbert">{assistants.darkbert.name}</SelectItem>
+                  <SelectItem value="violet">{assistants.violet.name}</SelectItem>
+                  <SelectItem value="ghost">{assistants.ghost.name}</SelectItem>
+                  <SelectItem value="demon">{assistants.demon.name}</SelectItem>
+                  <SelectItem value="venice">{assistants.venice.name}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {!offlineMode && !isOfflineModelLoading() && (
             <CyberpunkButton variant="ghost" size="sm" onClick={handleDownloadModel}>
@@ -228,9 +252,9 @@ export const ChatInterface = () => {
           </div>
           
           <div className="flex-1">
-            <CyberInput
+<CyberInput
               variant="terminal"
-              placeholder="Enter your query for DarkBERT..."
+              placeholder={`Enter your query for ${assistants[assistantKey].name}...`}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
