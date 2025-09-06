@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Wand2, Download, Settings, Upload } from "lucide-react"
+import { Wand2, Download, Settings, Upload, Video, Image } from "lucide-react"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { CyberInput } from "@/components/ui/cyber-input"
 import { Card } from "@/components/ui/card"
@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 export const ImageGeneration = () => {
   const [prompt, setPrompt] = useState("")
   const [selectedModel, setSelectedModel] = useState("sdxl-1.0")
+  const [selectedLora, setSelectedLora] = useState("none")
+  const [contentMode, setContentMode] = useState("image") // "image" or "video"
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
 
@@ -28,32 +30,82 @@ export const ImageGeneration = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-primary neon-text mb-2">SDXL Image Creation Studio</h2>
-        <p className="text-muted-foreground font-mono">Generate cyberpunk artwork with advanced AI models</p>
+        <h2 className="text-2xl font-bold text-primary neon-text mb-2">AI Content Creation Studio</h2>
+        <p className="text-muted-foreground font-mono">Generate images and videos with advanced AI models and custom LoRAs</p>
+        
+        {/* Content Type Toggle */}
+        <div className="flex justify-center gap-2 mt-4">
+          <CyberpunkButton
+            variant={contentMode === "image" ? "cyber" : "ghost"}
+            onClick={() => setContentMode("image")}
+            className="flex items-center gap-2"
+          >
+            <Image className="h-4 w-4" />
+            Images
+          </CyberpunkButton>
+          <CyberpunkButton
+            variant={contentMode === "video" ? "cyber" : "ghost"}
+            onClick={() => setContentMode("video")}
+            className="flex items-center gap-2"
+          >
+            <Video className="h-4 w-4" />
+            Videos
+          </CyberpunkButton>
+        </div>
       </div>
 
       {/* Generation Panel */}
       <Card className="glass-morphism border-card-border p-6">
         <div className="space-y-4">
           {/* Model Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-mono text-foreground mb-2">SDXL Model</label>
+              <label className="block text-sm font-mono text-foreground mb-2">
+                {contentMode === "image" ? "Image Model" : "Video Model"}
+              </label>
               <Select value={selectedModel} onValueChange={setSelectedModel}>
                 <SelectTrigger className="bg-input border-border">
-                  <SelectValue placeholder="Select SDXL model" />
+                  <SelectValue placeholder={`Select ${contentMode} model`} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border">
-                  <SelectItem value="sdxl-1.0">SDXL 1.0 (Stable)</SelectItem>
-                  <SelectItem value="sdxl-turbo">SDXL Turbo (Fast)</SelectItem>
-                  <SelectItem value="sdxl-refiner">SDXL Refiner (High Quality)</SelectItem>
-                  <SelectItem value="sdxl-custom">Custom LoRA Model</SelectItem>
+                  {contentMode === "image" ? (
+                    <>
+                      <SelectItem value="sdxl-1.0">SDXL 1.0 (Stable)</SelectItem>
+                      <SelectItem value="sdxl-turbo">SDXL Turbo (Fast)</SelectItem>
+                      <SelectItem value="sdxl-refiner">SDXL Refiner (High Quality)</SelectItem>
+                      <SelectItem value="flux-dev">Flux Dev (Premium)</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="stable-video">Stable Video Diffusion</SelectItem>
+                      <SelectItem value="runway-gen2">Runway Gen-2</SelectItem>
+                      <SelectItem value="pika-labs">Pika Labs</SelectItem>
+                      <SelectItem value="zeroscope-v2">ZeroScope v2</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <label className="block text-sm font-mono text-foreground mb-2">LoRA Training</label>
+              <label className="block text-sm font-mono text-foreground mb-2">Custom LoRA</label>
+              <Select value={selectedLora} onValueChange={setSelectedLora}>
+                <SelectTrigger className="bg-input border-border">
+                  <SelectValue placeholder="Select LoRA" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="none">None (Base Model)</SelectItem>
+                  <SelectItem value="realistic-v1">Realistic Portrait v1</SelectItem>
+                  <SelectItem value="cyberpunk-v2">Cyberpunk Style v2</SelectItem>
+                  <SelectItem value="anime-v3">Anime/Manga v3</SelectItem>
+                  <SelectItem value="technical-v1">Technical Diagrams</SelectItem>
+                  <SelectItem value="custom-upload">Upload Custom LoRA</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-mono text-foreground mb-2">Upload Training</label>
               <CyberpunkButton variant="ghost" className="w-full justify-start">
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Dataset
@@ -65,18 +117,25 @@ export const ImageGeneration = () => {
           <div>
             <label className="block text-sm font-mono text-foreground mb-2">Generation Prompt</label>
             <Textarea
-              placeholder="Describe your cyberpunk image..."
+              placeholder={contentMode === "image" ? "Describe your cyberpunk image..." : "Describe your video scene..."}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               className="bg-input border-border text-foreground font-mono min-h-20"
             />
+            {selectedLora !== "none" && (
+              <p className="text-xs text-accent mt-1 font-mono">
+                LoRA Active: {selectedLora.replace("-", " ").toUpperCase()}
+              </p>
+            )}
           </div>
 
           {/* Advanced Settings */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-mono text-foreground mb-2">Steps</label>
-              <CyberInput variant="terminal" placeholder="50" />
+              <label className="block text-sm font-mono text-foreground mb-2">
+                {contentMode === "image" ? "Steps" : "Frames"}
+              </label>
+              <CyberInput variant="terminal" placeholder={contentMode === "image" ? "50" : "24"} />
             </div>
             <div>
               <label className="block text-sm font-mono text-foreground mb-2">CFG Scale</label>
@@ -84,11 +143,13 @@ export const ImageGeneration = () => {
             </div>
             <div>
               <label className="block text-sm font-mono text-foreground mb-2">Width</label>
-              <CyberInput variant="terminal" placeholder="1024" />
+              <CyberInput variant="terminal" placeholder={contentMode === "image" ? "1024" : "512"} />
             </div>
             <div>
-              <label className="block text-sm font-mono text-foreground mb-2">Height</label>
-              <CyberInput variant="terminal" placeholder="1024" />
+              <label className="block text-sm font-mono text-foreground mb-2">
+                {contentMode === "image" ? "Height" : "Duration"}
+              </label>
+              <CyberInput variant="terminal" placeholder={contentMode === "image" ? "1024" : "4s"} />
             </div>
           </div>
 
@@ -107,7 +168,7 @@ export const ImageGeneration = () => {
             ) : (
               <>
                 <Wand2 className="h-4 w-4 mr-2" />
-                Generate Image
+                Generate {contentMode === "image" ? "Image" : "Video"}
               </>
             )}
           </CyberpunkButton>
