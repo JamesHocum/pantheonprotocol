@@ -88,32 +88,114 @@ const successMessage: Message = {
     setIsTyping(true)
 
     try {
-      let responseContent: string
+      let responseContent = ""
       
-if (offlineMode && isOfflineModelReady()) {
+      if (offlineMode && isOfflineModelReady()) {
         // Use offline model with selected assistant system prompt
         responseContent = await generateOfflineResponse(inputMessage, {
           systemPrompt: assistants[assistantKey].systemPrompt,
         })
+        
+        const darkbertResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: "darkbert",
+          assistantKey,
+          content: responseContent,
+          timestamp: new Date(),
+        }
+        setMessages(prev => [...prev, darkbertResponse])
       } else {
-// Simulate online response
-        await new Promise(resolve => setTimeout(resolve, 1200))
-        responseContent = `${assistants[assistantKey].name} acknowledging: "${inputMessage}". How can I help you further?`
-      }
+        // Stream response from Lovable AI
+        const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`
+        const response = await fetch(CHAT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            messages: [
+              { role: "system", content: assistants[assistantKey].systemPrompt },
+              { role: "user", content: inputMessage }
+            ],
+            assistantKey,
+          }),
+        })
 
-const darkbertResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        type: "darkbert",
-        assistantKey,
-        content: responseContent,
-        timestamp: new Date(),
+        if (!response.ok) {
+          if (response.status === 429) {
+            throw new Error("Rate limits exceeded, please try again later.")
+          }
+          if (response.status === 402) {
+            throw new Error("Payment required, please add credits to continue.")
+          }
+          throw new Error("Failed to get AI response")
+        }
+
+        if (!response.body) throw new Error("No response body")
+
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let textBuffer = ""
+        let streamDone = false
+        let assistantMessageId = (Date.now() + 1).toString()
+
+        while (!streamDone) {
+          const { done, value } = await reader.read()
+          if (done) break
+          textBuffer += decoder.decode(value, { stream: true })
+
+          let newlineIndex: number
+          while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+            let line = textBuffer.slice(0, newlineIndex)
+            textBuffer = textBuffer.slice(newlineIndex + 1)
+
+            if (line.endsWith("\r")) line = line.slice(0, -1)
+            if (line.startsWith(":") || line.trim() === "") continue
+            if (!line.startsWith("data: ")) continue
+
+            const jsonStr = line.slice(6).trim()
+            if (jsonStr === "[DONE]") {
+              streamDone = true
+              break
+            }
+
+            try {
+              const parsed = JSON.parse(jsonStr)
+              const content = parsed.choices?.[0]?.delta?.content as string | undefined
+              if (content) {
+                responseContent += content
+                setMessages(prev => {
+                  const lastMsg = prev[prev.length - 1]
+                  if (lastMsg?.id === assistantMessageId && lastMsg?.type === "darkbert") {
+                    return prev.map((m, i) => 
+                      i === prev.length - 1 
+                        ? { ...m, content: responseContent }
+                        : m
+                    )
+                  }
+                  return [...prev, {
+                    id: assistantMessageId,
+                    type: "darkbert" as const,
+                    assistantKey,
+                    content: responseContent,
+                    timestamp: new Date(),
+                  }]
+                })
+              }
+            } catch {
+              textBuffer = line + "\n" + textBuffer
+              break
+            }
+          }
+        }
       }
-      setMessages(prev => [...prev, darkbertResponse])
     } catch (error) {
+      console.error("Chat error:", error)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "darkbert",
-        content: "I encountered an error processing your request. Please try again.",
+        content: error instanceof Error ? error.message : "I encountered an error processing your request. Please try again.",
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])
