@@ -6,8 +6,8 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { initializeOfflineModel, generateOfflineResponse, isOfflineModelReady, isOfflineModelLoading } from "@/lib/offlineAI"
 import { assistants, type AssistantKey } from "@/lib/assistants"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import darkbertAvatar from "@/assets/darkbert-avatar.jpg"
+import { MountRushmoreSelector } from "./MountRushmoreSelector"
+import { AIAvatar } from "./AIAvatars"
 
 interface Message {
   id: string
@@ -23,8 +23,8 @@ const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       type: "darkbert",
-      assistantKey: "darkbert",
-      content: "Welcome to Lady Violet's Cyberpunk Cafe. I'm DarkBERT. I can run online or offline once my neural net is downloaded. How may I assist you today?",
+      assistantKey: "violet",
+      content: "Welcome to my Cyberpunk Cafe, darling. I'm Lady Violet, your host. My team of AI specialists is ready to assist you. Select any of us from above to begin. How may we serve you today?",
       timestamp: new Date(),
     }
   ])
@@ -32,7 +32,7 @@ const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [offlineMode, setOfflineMode] = useState(false)
   const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
-  const [assistantKey, setAssistantKey] = useState<AssistantKey>("darkbert")
+  const [assistantKey, setAssistantKey] = useState<AssistantKey>("violet")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -213,6 +213,9 @@ const successMessage: Message = {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Mount Rushmore Selector */}
+      <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={setAssistantKey} />
+      
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
@@ -222,11 +225,7 @@ const successMessage: Message = {
           >
             {message.type === "darkbert" && (
               <div className="flex-shrink-0">
-                <img
-                  src={darkbertAvatar}
-                  alt="DarkBERT"
-                  className="w-10 h-10 rounded-full border-2 border-primary shadow-glow-purple"
-                />
+                <AIAvatar assistantKey={message.assistantKey ?? "darkbert"} />
               </div>
             )}
             
@@ -258,11 +257,7 @@ const successMessage: Message = {
 
         {isTyping && (
           <div className="flex gap-3 justify-start">
-            <img
-              src={darkbertAvatar}
-              alt="DarkBERT"
-              className="w-10 h-10 rounded-full border-2 border-primary shadow-glow-purple"
-            />
+            <AIAvatar assistantKey={assistantKey} />
             <Card className="glass-morphism border-card-border p-3">
               <div className="flex items-center gap-2">
                 <Brain className="h-4 w-4 text-primary animate-pulse" />
@@ -288,29 +283,14 @@ const successMessage: Message = {
             {offlineMode ? (
               <>
                 <WifiOff className="h-3 w-3 text-secondary" />
-                <span className="text-secondary">OFFLINE MODE ACTIVE</span>
+                <span className="text-secondary">OFFLINE MODE</span>
               </>
             ) : (
               <>
                 <Wifi className="h-3 w-3 text-primary" />
-                <span className="text-primary">ONLINE MODE</span>
+                <span className="text-primary">ONLINE • Free Gemini</span>
               </>
             )}
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Assistant:</span>
-              <Select value={assistantKey} onValueChange={(v) => setAssistantKey(v as AssistantKey)}>
-                <SelectTrigger className="w-[160px] h-8">
-                  <SelectValue placeholder="Choose assistant" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="darkbert">{assistants.darkbert.name}</SelectItem>
-                  <SelectItem value="violet">{assistants.violet.name}</SelectItem>
-                  <SelectItem value="ghost">{assistants.ghost.name}</SelectItem>
-                  <SelectItem value="demon">{assistants.demon.name}</SelectItem>
-                  <SelectItem value="venice">{assistants.venice.name}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
           {!offlineMode && !isOfflineModelLoading() && (
             <CyberpunkButton variant="ghost" size="sm" onClick={handleDownloadModel}>
