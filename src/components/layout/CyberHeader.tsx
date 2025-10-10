@@ -10,6 +10,27 @@ export const CyberHeader = () => {
 
   return (
     <header className="relative w-full">
+      {/* Platform Title Banner */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-background via-card to-background border-b-2 border-primary/30 mb-4">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
+        <div className="relative px-6 py-4 flex items-center justify-center gap-4">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+            <span className="text-xs font-mono tracking-wider">PROTOCOL</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold font-mono tracking-tight bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-gradient">
+            PANTHEON PROTOCOL: ROGUE AI RUSHMORE
+          </h1>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <span className="text-xs font-mono tracking-wider">ACTIVE</span>
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+          </div>
+        </div>
+        {/* Steampunk gears accent */}
+        <div className="absolute top-0 left-4 w-8 h-8 border-2 border-card-border rounded-full opacity-20" style={{ clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }}></div>
+        <div className="absolute bottom-0 right-4 w-6 h-6 border-2 border-card-border rounded-full opacity-20" style={{ clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }}></div>
+      </div>
+
       {/* Neon Cafe Sign */}
       <div className="flex justify-center mb-6">
         <div className="relative">
