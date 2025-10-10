@@ -24,7 +24,7 @@ const [messages, setMessages] = useState<Message[]>([
       id: "welcome",
       type: "darkbert",
       assistantKey: "violet",
-      content: "Welcome, darling — to Lady Violet's Cyberpunk Café. I'm Lady Violet, your host. Sip the synth-brew, lean into the neon, and tell me which of my specialists you'd like to summon. I keep curiosities, solutions, and delightful chaos on the menu. Pick an alias: DarkBERT, GhostGPT, DemonGPT (ethical red-team only), WormGPT, Venice — or ask for something custom. Your secrets are safe; your ideas are safe. Now — let us begin.",
+      content: "Welcome, darling — to LadyVioletGPT's Cyberpunk Café. I'm LadyVioletGPT, your host. Sip the synth-brew, lean into the neon, and tell me which of my specialists you'd like to summon. I keep curiosities, solutions, and delightful chaos on the menu. Pick an alias: DarkBERT, GhostGPT, DemonGPT (ethical red-team only), WormGPT, Venice — or ask for something custom. Your secrets are safe; your ideas are safe. Now — let us begin.",
       timestamp: new Date(),
     }
   ])
