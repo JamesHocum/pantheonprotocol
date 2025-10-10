@@ -22,7 +22,7 @@ export const initializeOfflineModel = async (onProgress?: (progress: any) => voi
       'text-generation',
       'onnx-community/Phi-3.5-mini-instruct',
       { 
-        device: 'webgpu',
+        device: 'wasm',  // Use WebAssembly for broader browser support
         progress_callback: onProgress
       }
     );
