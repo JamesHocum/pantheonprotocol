@@ -17,12 +17,13 @@ export const initializeOfflineModel = async (onProgress?: (progress: any) => voi
   try {
     console.log('Loading offline model...');
     
-    // Use a small, efficient model for offline text generation
+    // Use a small, publicly available model for offline text generation
     textGenerator = await pipeline(
       'text-generation',
-      'onnx-community/Phi-3.5-mini-instruct',
+      'onnx-community/Qwen2.5-0.5B-Instruct',
       { 
-        device: 'wasm',  // Use WebAssembly for broader browser support
+        dtype: 'q4',  // Quantized for smaller download
+        device: 'wasm',
         progress_callback: onProgress
       }
     );
@@ -48,7 +49,7 @@ export const generateOfflineResponse = async (
 
   try {
     const system = opts?.systemPrompt ?? DEFAULT_SYSTEM_PROMPT;
-    const prompt = `<|system|>${system}<|end|><|user|>${message}<|end|><|assistant|>`;
+    const prompt = `<|im_start|>system\n${system}<|im_end|>\n<|im_start|>user\n${message}<|im_end|>\n<|im_start|>assistant\n`;
 
     const result = await textGenerator(prompt, {
       max_new_tokens: 150,
@@ -60,7 +61,7 @@ export const generateOfflineResponse = async (
 
     // Extract the generated text after the assistant token
     const generated = result[0].generated_text;
-    const response = generated.split('<|assistant|>')[1]?.trim() ||
+    const response = generated.split('<|im_start|>assistant\n')[1]?.split('<|im_end|>')[0]?.trim() ||
       'I apologize, but I encountered an issue processing your request.';
 
     return response;
