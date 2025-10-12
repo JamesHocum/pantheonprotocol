@@ -7,7 +7,7 @@ interface MountRushmoreSelectorProps {
 }
 
 export const MountRushmoreSelector = ({ selectedAssistant, onSelectAssistant }: MountRushmoreSelectorProps) => {
-  const aiList: AssistantKey[] = ["violet", "darkbert", "ghost", "demon", "wormgpt", "venice"]
+  const aiList: AssistantKey[] = ["violet", "darkbert", "ghost", "demon", "wormgpt", "venice", "fraudgpt"]
 
   return (
     <div className="flex justify-center items-end gap-2 p-4 bg-gradient-to-r from-card/50 via-card/80 to-card/50 border-b border-border/30 rounded-b-3xl">

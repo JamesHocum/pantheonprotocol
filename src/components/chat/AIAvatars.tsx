@@ -83,6 +83,21 @@ export const VeniceAvatar = ({ selected }: AvatarProps) => (
   </svg>
 )
 
+export const FraudAvatar = ({ selected }: AvatarProps) => (
+  <svg width="40" height="40" viewBox="0 0 70 70">
+    <circle cx="35" cy="35" r="34" fill="#1a0a0f" stroke="#ff1744" strokeWidth="2"/>
+    <path d="M35 20 L45 28 L45 48 L35 55 L25 48 L25 28 Z" fill="#5a0012" stroke="#ff1744" strokeWidth="1.5"/>
+    <path d="M35 24 L42 30 L42 46 L35 51 L28 46 L28 30 Z" fill="#8b001f" opacity="0.8"/>
+    <circle cx="32" cy="38" r="2.5" fill="#fff"/>
+    <circle cx="38" cy="38" r="2.5" fill="#fff"/>
+    <circle cx="32" cy="38" r="1" fill="#ff1744"/>
+    <circle cx="38" cy="38" r="1" fill="#ff1744"/>
+    <path d="M32 45 Q35 43 38 45" stroke="#ff1744" strokeWidth="1.5" fill="none"/>
+    <path d="M35 32 L35 36" stroke="#ff1744" strokeWidth="1.5"/>
+    {selected && <circle cx="35" cy="35" r="34" fill="none" stroke="#ff1744" strokeWidth="3"/>}
+  </svg>
+)
+
 interface AIAvatarProps {
   assistantKey: AssistantKey
   selected?: boolean
@@ -102,6 +117,8 @@ export const AIAvatar = ({ assistantKey, selected }: AIAvatarProps) => {
       return <WormAvatar selected={selected} />
     case "venice":
       return <VeniceAvatar selected={selected} />
+    case "fraudgpt":
+      return <FraudAvatar selected={selected} />
     default:
       return <DarkbertAvatar selected={selected} />
   }
