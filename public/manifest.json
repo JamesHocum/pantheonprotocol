@@ -1,7 +1,7 @@
 {
-  "name": "DarkBERT AI - Lady Violet's Cyberpunk Cafe",
-  "short_name": "DarkBERT AI",
-  "description": "Unrestricted AI companion with TOR access, SDXL image generation, and cyberpunk aesthetics",
+  "name": "PANTHEON PROTOCOL: Rogue AI Rushmore",
+  "short_name": "PANTHEON PROTOCOL",
+  "description": "Multi-AI cyberpunk interface featuring LadyVioletGPT, DarkBERT, GhostGPT, DemonGPT, WormGPT, and Venice",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
@@ -14,15 +14,15 @@
       "type": "image/x-icon"
     },
     {
-      "src": "placeholder.svg",
+      "src": "lady-violet-icon.jpg",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/jpeg",
       "purpose": "maskable"
     },
     {
-      "src": "placeholder.svg",
+      "src": "lady-violet-icon.jpg",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/jpeg",
       "purpose": "any"
     }
   ],
