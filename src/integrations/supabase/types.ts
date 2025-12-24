@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      canvas_data: {
+        Row: {
+          assistant_key: string
+          content: string
+          created_at: string
+          id: string
+          language: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assistant_key: string
+          content?: string
+          created_at?: string
+          id?: string
+          language?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assistant_key?: string
+          content?: string
+          created_at?: string
+          id?: string
+          language?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canvas_data_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           assistant_key: string
@@ -55,20 +93,99 @@ export type Database = {
           created_at: string
           id: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           assistant_key: string
           created_at?: string
           id?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           assistant_key?: string
           created_at?: string
           id?: string
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
         }
         Relationships: []
+      }
+      user_agent_settings: {
+        Row: {
+          assistant_key: string
+          created_at: string
+          custom_avatar_url: string | null
+          custom_instructions: string | null
+          id: string
+          tor_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assistant_key: string
+          created_at?: string
+          custom_avatar_url?: string | null
+          custom_instructions?: string | null
+          id?: string
+          tor_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assistant_key?: string
+          created_at?: string
+          custom_avatar_url?: string | null
+          custom_instructions?: string | null
+          id?: string
+          tor_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_agent_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
