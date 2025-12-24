@@ -1,13 +1,20 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, Image, Zap, Brain, Upload, Download, Wifi, WifiOff } from "lucide-react"
+import { Send, Image, Zap, Brain, Upload, Download, Wifi, WifiOff, Settings2, Trash2, Shield, Globe } from "lucide-react"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { CyberInput } from "@/components/ui/cyber-input"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { initializeOfflineModel, generateOfflineResponse, isOfflineModelReady, isOfflineModelLoading } from "@/lib/offlineAI"
 import { assistants, type AssistantKey } from "@/lib/assistants"
 import { MountRushmoreSelector } from "./MountRushmoreSelector"
 import { AIAvatar } from "./AIAvatars"
+import { AgentSettings } from "@/components/features/AgentSettings"
+import { CodeCanvas } from "@/components/features/CodeCanvas"
+import { useAuth } from "@/contexts/AuthContext"
+import { useChatHistory } from "@/hooks/useChatHistory"
+import { useAgentSettings } from "@/hooks/useAgentSettings"
+import { toast } from "sonner"
 
 interface Message {
   id: string
@@ -19,7 +26,12 @@ interface Message {
 }
 
 export const ChatInterface = () => {
-const [messages, setMessages] = useState<Message[]>([
+  const { user, profile } = useAuth()
+  const [assistantKey, setAssistantKey] = useState<AssistantKey>("violet")
+  const { messages: savedMessages, addMessage, clearHistory, loading: historyLoading } = useChatHistory(assistantKey)
+  const { settings: agentSettings } = useAgentSettings(assistantKey)
+  
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       type: "darkbert",
@@ -28,12 +40,27 @@ const [messages, setMessages] = useState<Message[]>([
       timestamp: new Date(),
     }
   ])
-const [inputMessage, setInputMessage] = useState("")
+  const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [offlineMode, setOfflineMode] = useState(false)
   const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
-  const [assistantKey, setAssistantKey] = useState<AssistantKey>("violet")
+  const [showSettings, setShowSettings] = useState(false)
+  const [showCanvas, setShowCanvas] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Load saved messages when authenticated
+  useEffect(() => {
+    if (!historyLoading && savedMessages.length > 0 && user) {
+      const loadedMessages: Message[] = savedMessages.map(m => ({
+        id: m.id,
+        type: m.role === "user" ? "user" : "darkbert",
+        content: m.content,
+        timestamp: new Date(m.created_at),
+        assistantKey: m.assistant_key as AssistantKey
+      }))
+      setMessages([messages[0], ...loadedMessages])
+    }
+  }, [savedMessages, historyLoading, user])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -52,7 +79,7 @@ const [inputMessage, setInputMessage] = useState("")
       setModelLoadProgress(null)
       setOfflineMode(true)
       
-const successMessage: Message = {
+      const successMessage: Message = {
         id: Date.now().toString(),
         type: "darkbert",
         assistantKey,
@@ -84,16 +111,32 @@ const successMessage: Message = {
     }
 
     setMessages(prev => [...prev, userMessage])
+    const messageContent = inputMessage
     setInputMessage("")
     setIsTyping(true)
+
+    // Save user message if authenticated
+    if (user) {
+      await addMessage("user", messageContent)
+    }
 
     try {
       let responseContent = ""
       
+      // Build system prompt with custom instructions
+      let systemPrompt = assistants[assistantKey].systemPrompt
+      if (agentSettings?.custom_instructions) {
+        systemPrompt += `\n\nAdditional user instructions: ${agentSettings.custom_instructions}`
+      }
+      
+      // Add Tor context if enabled
+      if (agentSettings?.tor_enabled) {
+        systemPrompt += "\n\nNote: User has enabled Tor network mode. When searching or providing resources, prioritize .onion links and privacy-focused alternatives where appropriate."
+      }
+      
       if (offlineMode && isOfflineModelReady()) {
-        // Use offline model with selected assistant system prompt
-        responseContent = await generateOfflineResponse(inputMessage, {
-          systemPrompt: assistants[assistantKey].systemPrompt,
+        responseContent = await generateOfflineResponse(messageContent, {
+          systemPrompt,
         })
         
         const darkbertResponse: Message = {
@@ -104,8 +147,11 @@ const successMessage: Message = {
           timestamp: new Date(),
         }
         setMessages(prev => [...prev, darkbertResponse])
+        
+        if (user) {
+          await addMessage("assistant", responseContent)
+        }
       } else {
-        // Stream response from Lovable AI
         const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`
         const response = await fetch(CHAT_URL, {
           method: "POST",
@@ -115,8 +161,8 @@ const successMessage: Message = {
           },
           body: JSON.stringify({
             messages: [
-              { role: "system", content: assistants[assistantKey].systemPrompt },
-              { role: "user", content: inputMessage }
+              { role: "system", content: systemPrompt },
+              { role: "user", content: messageContent }
             ],
             assistantKey,
           }),
@@ -189,6 +235,11 @@ const successMessage: Message = {
             }
           }
         }
+        
+        // Save assistant response if authenticated
+        if (user && responseContent) {
+          await addMessage("assistant", responseContent)
+        }
       }
     } catch (error) {
       console.error("Chat error:", error)
@@ -209,6 +260,14 @@ const successMessage: Message = {
       e.preventDefault()
       handleSendMessage()
     }
+  }
+
+  const handleClearHistory = async () => {
+    if (user) {
+      await clearHistory()
+    }
+    setMessages([messages[0]])
+    toast.success("Chat history cleared")
   }
 
   return (
@@ -235,8 +294,8 @@ const successMessage: Message = {
                 : "glass-morphism border-card-border"
             }`}>
               <div className="flex items-center gap-2 mb-1">
-<Badge variant={message.type === "user" ? "default" : "secondary"} className="text-xs">
-                  {message.type === "user" ? "USER" : (assistants[message.assistantKey ?? "darkbert"].name)}
+                <Badge variant={message.type === "user" ? "default" : "secondary"} className="text-xs">
+                  {message.type === "user" ? (profile?.display_name || "USER") : (assistants[message.assistantKey ?? "darkbert"].name)}
                 </Badge>
                 <span className="text-xs text-muted-foreground font-mono">
                   {message.timestamp.toLocaleTimeString()}
@@ -247,9 +306,17 @@ const successMessage: Message = {
 
             {message.type === "user" && (
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 rounded-full bg-gradient-cyberpunk flex items-center justify-center border-2 border-primary shadow-glow-cyber">
-                  <span className="text-xs font-bold">U</span>
-                </div>
+                {profile?.avatar_url ? (
+                  <img 
+                    src={profile.avatar_url} 
+                    alt="User"
+                    className="w-10 h-10 rounded-full border-2 border-primary shadow-glow-cyber object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-cyberpunk flex items-center justify-center border-2 border-primary shadow-glow-cyber">
+                    <span className="text-xs font-bold">{profile?.display_name?.[0] || "U"}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -262,7 +329,7 @@ const successMessage: Message = {
               <div className="flex items-center gap-2">
                 <Brain className="h-4 w-4 text-primary animate-pulse" />
                 <span className="text-sm font-mono text-muted-foreground">
-{modelLoadProgress ? 
+                  {modelLoadProgress ? 
                     `Downloading neural net: ${Math.round(modelLoadProgress.progress || 0)}%` : 
                     offlineMode ? `${assistants[assistantKey].name} processing offline...` : `${assistants[assistantKey].name} is processing...`
                   }
@@ -277,7 +344,7 @@ const successMessage: Message = {
 
       {/* Input Area */}
       <div className="p-4 border-t border-border/30 bg-card/20">
-{/* Status Bar */}
+        {/* Status Bar */}
         <div className="flex items-center justify-between mb-3 text-xs font-mono">
           <div className="flex items-center gap-3">
             {offlineMode ? (
@@ -291,13 +358,26 @@ const successMessage: Message = {
                 <span className="text-primary">ONLINE • Free Gemini</span>
               </>
             )}
+            {agentSettings?.tor_enabled && (
+              <Badge variant="secondary" className="text-xs">
+                <Shield className="h-3 w-3 mr-1" />
+                TOR
+              </Badge>
+            )}
+            {user && (
+              <Badge variant="outline" className="text-xs">
+                Synced
+              </Badge>
+            )}
           </div>
-          {!offlineMode && !isOfflineModelLoading() && (
-            <CyberpunkButton variant="ghost" size="sm" onClick={handleDownloadModel}>
-              <Download className="h-3 w-3 mr-1" />
-              Download Neural Net
-            </CyberpunkButton>
-          )}
+          <div className="flex items-center gap-2">
+            {!offlineMode && !isOfflineModelLoading() && (
+              <CyberpunkButton variant="ghost" size="sm" onClick={handleDownloadModel}>
+                <Download className="h-3 w-3 mr-1" />
+                Download Neural Net
+              </CyberpunkButton>
+            )}
+          </div>
         </div>
         
         <div className="flex gap-2 items-end">
@@ -308,13 +388,40 @@ const successMessage: Message = {
             <CyberpunkButton variant="ghost" size="icon">
               <Image className="h-4 w-4" />
             </CyberpunkButton>
-            <CyberpunkButton variant="ghost" size="icon">
-              <Zap className="h-4 w-4" />
-            </CyberpunkButton>
+            
+            {/* Agent Settings Dialog */}
+            <Dialog open={showSettings} onOpenChange={setShowSettings}>
+              <DialogTrigger asChild>
+                <CyberpunkButton variant="ghost" size="icon">
+                  <Settings2 className="h-4 w-4" />
+                </CyberpunkButton>
+              </DialogTrigger>
+              <DialogContent className="bg-card border-card-border max-w-lg">
+                <AgentSettings assistantKey={assistantKey} onClose={() => setShowSettings(false)} />
+              </DialogContent>
+            </Dialog>
+            
+            {/* Code Canvas Dialog */}
+            <Dialog open={showCanvas} onOpenChange={setShowCanvas}>
+              <DialogTrigger asChild>
+                <CyberpunkButton variant="ghost" size="icon">
+                  <Zap className="h-4 w-4" />
+                </CyberpunkButton>
+              </DialogTrigger>
+              <DialogContent className="bg-card border-card-border max-w-2xl">
+                <CodeCanvas assistantKey={assistantKey} />
+              </DialogContent>
+            </Dialog>
+            
+            {user && (
+              <CyberpunkButton variant="ghost" size="icon" onClick={handleClearHistory}>
+                <Trash2 className="h-4 w-4" />
+              </CyberpunkButton>
+            )}
           </div>
           
           <div className="flex-1">
-<CyberInput
+            <CyberInput
               variant="terminal"
               placeholder={`Enter your query for ${assistants[assistantKey].name}...`}
               value={inputMessage}
