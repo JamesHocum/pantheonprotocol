@@ -6,6 +6,7 @@ import { ImageGeneration } from "@/components/features/ImageGeneration"
 import { UserAvatar } from "@/components/features/UserAvatar"
 import { AppSettings } from "@/components/features/AppSettings"
 import { VoiceAssistant } from "@/components/features/VoiceAssistant"
+import { HackerNewsFeed } from "@/components/features/HackerNewsFeed"
 import { InstallPrompt } from "@/components/ui/install-prompt"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
@@ -159,6 +160,7 @@ const Index = () => {
         </div>
       </div>
       <InstallPrompt />
+      <HackerNewsFeed />
     </div>
   )
 }

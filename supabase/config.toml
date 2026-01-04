@@ -1,1 +1,13 @@
 project_id = "uqzqlordghgqshrmdnqj"
+
+[functions.chat]
+verify_jwt = false
+
+[functions.web-search]
+verify_jwt = false
+
+[functions.generate-image]
+verify_jwt = false
+
+[functions.hacker-news]
+verify_jwt = false
