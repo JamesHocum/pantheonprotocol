@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, Image, Zap, Brain, Upload, Download, Wifi, WifiOff, Settings2, Trash2, Shield, Globe } from "lucide-react"
+import { Send, Image, Zap, Brain, Upload, Download, Wifi, WifiOff, Settings2, Trash2, Shield, Search } from "lucide-react"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { CyberInput } from "@/components/ui/cyber-input"
 import { Card } from "@/components/ui/card"
@@ -11,9 +11,11 @@ import { MountRushmoreSelector } from "./MountRushmoreSelector"
 import { AIAvatar } from "./AIAvatars"
 import { AgentSettings } from "@/components/features/AgentSettings"
 import { CodeCanvas } from "@/components/features/CodeCanvas"
+import { ConversationSidebar } from "./ConversationSidebar"
 import { useAuth } from "@/contexts/AuthContext"
 import { useChatHistory } from "@/hooks/useChatHistory"
 import { useAgentSettings } from "@/hooks/useAgentSettings"
+import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
 interface Message {
@@ -23,6 +25,7 @@ interface Message {
   timestamp: Date
   avatar?: string
   assistantKey?: AssistantKey
+  isWebSearch?: boolean
 }
 
 export const ChatInterface = () => {
@@ -43,6 +46,7 @@ export const ChatInterface = () => {
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [offlineMode, setOfflineMode] = useState(false)
+  const [webSearchMode, setWebSearchMode] = useState(false)
   const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
@@ -100,6 +104,20 @@ export const ChatInterface = () => {
     }
   }
 
+  const handleWebSearch = async (query: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("web-search", {
+        body: { query, torMode: agentSettings?.tor_enabled },
+      })
+
+      if (error) throw error
+      return data.result
+    } catch (error: any) {
+      console.error("Web search error:", error)
+      throw error
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return
 
@@ -108,6 +126,7 @@ export const ChatInterface = () => {
       type: "user",
       content: inputMessage,
       timestamp: new Date(),
+      isWebSearch: webSearchMode,
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -122,6 +141,28 @@ export const ChatInterface = () => {
 
     try {
       let responseContent = ""
+      
+      // Handle web search mode
+      if (webSearchMode) {
+        const searchResult = await handleWebSearch(messageContent)
+        responseContent = `🔍 **Web Search Results:**\n\n${searchResult}`
+        
+        const searchResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: "darkbert",
+          assistantKey,
+          content: responseContent,
+          timestamp: new Date(),
+          isWebSearch: true,
+        }
+        setMessages(prev => [...prev, searchResponse])
+        
+        if (user) {
+          await addMessage("assistant", responseContent)
+        }
+        setIsTyping(false)
+        return
+      }
       
       // Build system prompt with custom instructions
       let systemPrompt = assistants[assistantKey].systemPrompt
@@ -271,7 +312,13 @@ export const ChatInterface = () => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
+      {/* Conversation Sidebar */}
+      <ConversationSidebar 
+        currentAssistant={assistantKey} 
+        onNewConversation={handleClearHistory}
+      />
+      
       {/* Mount Rushmore Selector */}
       <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={setAssistantKey} />
       
@@ -297,11 +344,17 @@ export const ChatInterface = () => {
                 <Badge variant={message.type === "user" ? "default" : "secondary"} className="text-xs">
                   {message.type === "user" ? (profile?.display_name || "USER") : (assistants[message.assistantKey ?? "darkbert"].name)}
                 </Badge>
+                {message.isWebSearch && (
+                  <Badge variant="outline" className="text-xs">
+                    <Search className="h-3 w-3 mr-1" />
+                    Web
+                  </Badge>
+                )}
                 <span className="text-xs text-muted-foreground font-mono">
                   {message.timestamp.toLocaleTimeString()}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed font-mono">{message.content}</p>
+              <p className="text-sm leading-relaxed font-mono whitespace-pre-wrap">{message.content}</p>
             </Card>
 
             {message.type === "user" && (
@@ -331,6 +384,7 @@ export const ChatInterface = () => {
                 <span className="text-sm font-mono text-muted-foreground">
                   {modelLoadProgress ? 
                     `Downloading neural net: ${Math.round(modelLoadProgress.progress || 0)}%` : 
+                    webSearchMode ? "Searching the web..." :
                     offlineMode ? `${assistants[assistantKey].name} processing offline...` : `${assistants[assistantKey].name} is processing...`
                   }
                 </span>
@@ -358,6 +412,12 @@ export const ChatInterface = () => {
                 <span className="text-primary">ONLINE • Free Gemini</span>
               </>
             )}
+            {webSearchMode && (
+              <Badge variant="default" className="text-xs">
+                <Search className="h-3 w-3 mr-1" />
+                WEB SEARCH
+              </Badge>
+            )}
             {agentSettings?.tor_enabled && (
               <Badge variant="secondary" className="text-xs">
                 <Shield className="h-3 w-3 mr-1" />
@@ -382,6 +442,14 @@ export const ChatInterface = () => {
         
         <div className="flex gap-2 items-end">
           <div className="flex gap-1">
+            <CyberpunkButton 
+              variant={webSearchMode ? "cyber" : "ghost"} 
+              size="icon"
+              onClick={() => setWebSearchMode(!webSearchMode)}
+              title="Web Search Mode"
+            >
+              <Search className="h-4 w-4" />
+            </CyberpunkButton>
             <CyberpunkButton variant="ghost" size="icon">
               <Upload className="h-4 w-4" />
             </CyberpunkButton>
@@ -423,7 +491,7 @@ export const ChatInterface = () => {
           <div className="flex-1">
             <CyberInput
               variant="terminal"
-              placeholder={`Enter your query for ${assistants[assistantKey].name}...`}
+              placeholder={webSearchMode ? "Search the web..." : `Enter your query for ${assistants[assistantKey].name}...`}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}

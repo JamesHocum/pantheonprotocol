@@ -119,6 +119,135 @@ export type Database = {
           },
         ]
       }
+      exercise_completions: {
+        Row: {
+          attempts: number | null
+          completed_at: string
+          exercise_id: string
+          id: string
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          attempts?: number | null
+          completed_at?: string
+          exercise_id: string
+          id?: string
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          attempts?: number | null
+          completed_at?: string
+          exercise_id?: string
+          id?: string
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_completions_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "practice_exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hacker_toolkits: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          tools: Json
+          tutorial_content: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          tools?: Json
+          tutorial_content?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          tools?: Json
+          tutorial_content?: string | null
+        }
+        Relationships: []
+      }
+      practice_exercises: {
+        Row: {
+          content: Json
+          course_id: string | null
+          created_at: string
+          description: string
+          difficulty: string
+          exercise_type: string
+          hints: string[] | null
+          id: string
+          solution: Json | null
+          title: string
+          toolkit_id: string | null
+        }
+        Insert: {
+          content?: Json
+          course_id?: string | null
+          created_at?: string
+          description: string
+          difficulty?: string
+          exercise_type: string
+          hints?: string[] | null
+          id?: string
+          solution?: Json | null
+          title: string
+          toolkit_id?: string | null
+        }
+        Update: {
+          content?: Json
+          course_id?: string | null
+          created_at?: string
+          description?: string
+          difficulty?: string
+          exercise_type?: string
+          hints?: string[] | null
+          id?: string
+          solution?: Json | null
+          title?: string
+          toolkit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_exercises_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "training_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_exercises_toolkit_id_fkey"
+            columns: ["toolkit_id"]
+            isOneToOne: false
+            referencedRelation: "hacker_toolkits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -145,6 +274,93 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      training_courses: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          difficulty: string
+          estimated_hours: number | null
+          id: string
+          prerequisites: string[] | null
+          syllabus: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          difficulty?: string
+          estimated_hours?: number | null
+          id?: string
+          prerequisites?: string[] | null
+          syllabus?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          estimated_hours?: number | null
+          id?: string
+          prerequisites?: string[] | null
+          syllabus?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      training_progress: {
+        Row: {
+          completed_at: string | null
+          completed_modules: number[] | null
+          course_id: string
+          current_module: number | null
+          id: string
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_modules?: number[] | null
+          course_id: string
+          current_module?: number | null
+          id?: string
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_modules?: number[] | null
+          course_id?: string
+          current_module?: number | null
+          id?: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "training_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_agent_settings: {
         Row: {
