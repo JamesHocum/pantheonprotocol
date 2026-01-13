@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { CyberHeader } from "@/components/layout/CyberHeader"
 import { ChatInterface } from "@/components/chat/ChatInterface"
@@ -8,16 +8,23 @@ import { AppSettings } from "@/components/features/AppSettings"
 import { VoiceAssistant } from "@/components/features/VoiceAssistant"
 import { HackerNewsFeed } from "@/components/features/HackerNewsFeed"
 import { InstallPrompt } from "@/components/ui/install-prompt"
+import { CourseLibrary } from "@/components/training/CourseLibrary"
+import { CourseViewer } from "@/components/training/CourseViewer"
+import { ProgressTracker } from "@/components/training/ProgressTracker"
+import { ToolkitBrowser } from "@/components/training/ToolkitBrowser"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink } from "lucide-react"
+import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink, GraduationCap, BookOpen, Wrench, Trophy } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import type { Course } from "@/hooks/useCourses"
 
 const Index = () => {
   const { user, profile, loading } = useAuth()
   const navigate = useNavigate()
   const [showTorPrompt, setShowTorPrompt] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+  const [academyTab, setAcademyTab] = useState("courses")
 
   // Check if app is installed and show Tor download prompt
   useEffect(() => {
@@ -38,6 +45,14 @@ const Index = () => {
   const dismissTorPrompt = () => {
     localStorage.setItem("tor-prompt-seen", "true")
     setShowTorPrompt(false)
+  }
+
+  const handleSelectCourse = (course: Course) => {
+    setSelectedCourse(course)
+  }
+
+  const handleBackToLibrary = () => {
+    setSelectedCourse(null)
   }
 
   return (
@@ -95,13 +110,20 @@ const Index = () => {
         
         <div className="glass-morphism rounded-xl border border-card-border p-6 h-[calc(100vh-240px)]">
           <Tabs defaultValue="chat" className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-5 bg-card/50 border border-card-border">
+            <TabsList className="grid w-full grid-cols-6 bg-card/50 border border-card-border">
               <TabsTrigger 
                 value="chat" 
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow-purple"
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
-                DarkBERT Chat
+                Chat
+              </TabsTrigger>
+              <TabsTrigger 
+                value="academy"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow-purple"
+              >
+                <GraduationCap className="h-4 w-4 mr-2" />
+                Academy
               </TabsTrigger>
               <TabsTrigger 
                 value="images"
@@ -133,9 +155,44 @@ const Index = () => {
               </TabsTrigger>
             </TabsList>
             
-            <div className="flex-1 mt-6">
+            <div className="flex-1 mt-6 overflow-hidden">
               <TabsContent value="chat" className="h-full mt-0">
                 <ChatInterface />
+              </TabsContent>
+              
+              <TabsContent value="academy" className="h-full mt-0 overflow-y-auto">
+                {selectedCourse ? (
+                  <CourseViewer course={selectedCourse} onBack={handleBackToLibrary} />
+                ) : (
+                  <Tabs value={academyTab} onValueChange={setAcademyTab} className="h-full">
+                    <TabsList className="mb-4 bg-card/30 border border-border/30">
+                      <TabsTrigger value="courses" className="data-[state=active]:bg-primary/20">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Courses
+                      </TabsTrigger>
+                      <TabsTrigger value="toolkits" className="data-[state=active]:bg-primary/20">
+                        <Wrench className="h-4 w-4 mr-2" />
+                        Toolkits
+                      </TabsTrigger>
+                      <TabsTrigger value="progress" className="data-[state=active]:bg-primary/20">
+                        <Trophy className="h-4 w-4 mr-2" />
+                        My Progress
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="courses" className="mt-0">
+                      <CourseLibrary onSelectCourse={handleSelectCourse} />
+                    </TabsContent>
+                    
+                    <TabsContent value="toolkits" className="mt-0">
+                      <ToolkitBrowser />
+                    </TabsContent>
+                    
+                    <TabsContent value="progress" className="mt-0">
+                      <ProgressTracker onSelectCourse={handleSelectCourse} />
+                    </TabsContent>
+                  </Tabs>
+                )}
               </TabsContent>
               
               <TabsContent value="images" className="h-full mt-0 overflow-y-auto">

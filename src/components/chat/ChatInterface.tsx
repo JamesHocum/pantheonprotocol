@@ -12,6 +12,7 @@ import { AIAvatar } from "./AIAvatars"
 import { AgentSettings } from "@/components/features/AgentSettings"
 import { CodeCanvas } from "@/components/features/CodeCanvas"
 import { ConversationSidebar } from "./ConversationSidebar"
+import { ConversationStarters } from "./ConversationStarters"
 import { useAuth } from "@/contexts/AuthContext"
 import { useChatHistory } from "@/hooks/useChatHistory"
 import { useAgentSettings } from "@/hooks/useAgentSettings"
@@ -395,6 +396,18 @@ export const ChatInterface = () => {
         
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Conversation Starters - show when conversation is new */}
+      {messages.length <= 1 && !isTyping && (
+        <div className="px-4 pb-2">
+          <ConversationStarters 
+            assistantKey={assistantKey} 
+            onSelectStarter={(message) => {
+              setInputMessage(message)
+            }}
+          />
+        </div>
+      )}
 
       {/* Input Area */}
       <div className="p-4 border-t border-border/30 bg-card/20">
