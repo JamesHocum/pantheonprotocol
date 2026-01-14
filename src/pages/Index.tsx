@@ -12,10 +12,11 @@ import { CourseLibrary } from "@/components/training/CourseLibrary"
 import { CourseViewer } from "@/components/training/CourseViewer"
 import { ProgressTracker } from "@/components/training/ProgressTracker"
 import { ToolkitBrowser } from "@/components/training/ToolkitBrowser"
+import { ExerciseRunner } from "@/components/training/ExerciseRunner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink, GraduationCap, BookOpen, Wrench, Trophy } from "lucide-react"
+import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink, GraduationCap, BookOpen, Wrench, Trophy, Code } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import type { Course } from "@/hooks/useCourses"
 
@@ -170,6 +171,10 @@ const Index = () => {
                         <BookOpen className="h-4 w-4 mr-2" />
                         Courses
                       </TabsTrigger>
+                      <TabsTrigger value="exercises" className="data-[state=active]:bg-primary/20">
+                        <Code className="h-4 w-4 mr-2" />
+                        Exercises
+                      </TabsTrigger>
                       <TabsTrigger value="toolkits" className="data-[state=active]:bg-primary/20">
                         <Wrench className="h-4 w-4 mr-2" />
                         Toolkits
@@ -182,6 +187,10 @@ const Index = () => {
                     
                     <TabsContent value="courses" className="mt-0">
                       <CourseLibrary onSelectCourse={handleSelectCourse} />
+                    </TabsContent>
+                    
+                    <TabsContent value="exercises" className="mt-0">
+                      <ExerciseRunner />
                     </TabsContent>
                     
                     <TabsContent value="toolkits" className="mt-0">

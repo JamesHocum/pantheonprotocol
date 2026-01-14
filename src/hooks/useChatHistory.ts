@@ -64,6 +64,31 @@ export const useChatHistory = (assistantKey: AssistantKey) => {
     fetchConversation()
   }, [fetchConversation])
 
+  const loadConversation = async (conversationId: string) => {
+    if (!user) return
+
+    const { data: msgs } = await supabase
+      .from("chat_messages")
+      .select("*")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true })
+
+    if (msgs) {
+      setMessages(msgs)
+      
+      // Update current conversation
+      const { data: conv } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("id", conversationId)
+        .single()
+      
+      if (conv) {
+        setConversation(conv)
+      }
+    }
+  }
+
   const createConversation = async () => {
     if (!user) return { conversation: null, error: new Error("Not authenticated") }
 
@@ -129,6 +154,7 @@ export const useChatHistory = (assistantKey: AssistantKey) => {
     loading,
     addMessage,
     clearHistory,
+    loadConversation,
     refetch: fetchConversation
   }
 }
