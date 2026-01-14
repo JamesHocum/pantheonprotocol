@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Wand2, Download, Settings, Video, Image as ImageIcon } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Wand2, Download, Settings, Video, Image as ImageIcon, Trash2 } from "lucide-react"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,21 +8,22 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-
-interface GeneratedImage {
-  url: string
-  prompt: string
-  style: string
-  timestamp: Date
-}
+import { useAuth } from "@/contexts/AuthContext"
+import { useImageGallery, GeneratedImage } from "@/hooks/useImageGallery"
 
 export const ImageGeneration = () => {
   const { toast } = useToast()
+  const { user } = useAuth()
+  const { images: savedImages, saveImageUrl, deleteImage, loading: galleryLoading } = useImageGallery()
+  
   const [prompt, setPrompt] = useState("")
   const [selectedStyle, setSelectedStyle] = useState("cyberpunk")
   const [contentMode, setContentMode] = useState("image")
   const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([])
+  const [sessionImages, setSessionImages] = useState<GeneratedImage[]>([])
+
+  // Combine saved images with session images (for non-logged in users)
+  const allImages = user ? savedImages : sessionImages
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return
@@ -36,12 +37,22 @@ export const ImageGeneration = () => {
       if (error) throw error
 
       if (data.imageUrl) {
-        setGeneratedImages(prev => [{
-          url: data.imageUrl,
-          prompt: data.prompt,
-          style: data.style,
-          timestamp: new Date(),
-        }, ...prev])
+        // Save to database if user is logged in
+        if (user) {
+          const { error: saveError } = await saveImageUrl(data.imageUrl, data.prompt, data.style)
+          if (saveError) {
+            console.error("Failed to save image:", saveError)
+          }
+        } else {
+          // Add to session images for non-logged in users
+          setSessionImages(prev => [{
+            id: Date.now().toString(),
+            image_url: data.imageUrl,
+            prompt: data.prompt,
+            style: data.style,
+            created_at: new Date().toISOString(),
+          }, ...prev])
+        }
         toast({ title: "Image generated successfully!" })
       }
     } catch (error: any) {
@@ -61,6 +72,24 @@ export const ImageGeneration = () => {
     link.href = imageUrl
     link.download = `cybercafe-gen-${index}.png`
     link.click()
+  }
+
+  const handleDelete = async (imageId: string) => {
+    if (!user) {
+      setSessionImages(prev => prev.filter(img => img.id !== imageId))
+      return
+    }
+    
+    const { error } = await deleteImage(imageId)
+    if (error) {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      })
+    } else {
+      toast({ title: "Image deleted" })
+    }
   }
 
   return (
@@ -154,7 +183,7 @@ export const ImageGeneration = () => {
       </Card>
 
       {/* Loading State */}
-      {isGenerating && generatedImages.length === 0 && (
+      {isGenerating && allImages.length === 0 && (
         <Card className="glass-morphism border-card-border p-6">
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -167,22 +196,24 @@ export const ImageGeneration = () => {
       )}
 
       {/* Generated Images Gallery */}
-      {generatedImages.length > 0 && (
+      {allImages.length > 0 && (
         <Card className="glass-morphism border-card-border p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-primary neon-text">Generated Artwork</h3>
+              <h3 className="text-lg font-bold text-primary neon-text">
+                {user ? "Your Gallery" : "Generated Artwork"}
+              </h3>
               <Badge variant="secondary" className="font-mono">
-                {generatedImages.length} images
+                {allImages.length} images
               </Badge>
             </div>
             
             <ScrollArea className="h-80">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {generatedImages.map((img, idx) => (
-                  <div key={idx} className="relative group">
+                {allImages.map((img, idx) => (
+                  <div key={img.id} className="relative group">
                     <img
-                      src={img.url}
+                      src={img.image_url}
                       alt={img.prompt}
                       className="w-full aspect-square object-cover rounded-lg border-2 border-primary/30 group-hover:border-primary transition-colors"
                     />
@@ -190,9 +221,16 @@ export const ImageGeneration = () => {
                       <CyberpunkButton
                         variant="neon"
                         size="icon"
-                        onClick={() => handleDownload(img.url, idx)}
+                        onClick={() => handleDownload(img.image_url, idx)}
                       >
                         <Download className="h-4 w-4" />
+                      </CyberpunkButton>
+                      <CyberpunkButton
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(img.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </CyberpunkButton>
                     </div>
                     <Badge 
@@ -205,6 +243,12 @@ export const ImageGeneration = () => {
                 ))}
               </div>
             </ScrollArea>
+            
+            {!user && allImages.length > 0 && (
+              <p className="text-xs text-muted-foreground text-center font-mono">
+                Sign in to save your images permanently
+              </p>
+            )}
           </div>
         </Card>
       )}

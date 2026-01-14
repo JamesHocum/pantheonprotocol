@@ -32,7 +32,7 @@ interface Message {
 export const ChatInterface = () => {
   const { user, profile } = useAuth()
   const [assistantKey, setAssistantKey] = useState<AssistantKey>("violet")
-  const { messages: savedMessages, addMessage, clearHistory, loading: historyLoading } = useChatHistory(assistantKey)
+  const { messages: savedMessages, addMessage, clearHistory, loadConversation, loading: historyLoading } = useChatHistory(assistantKey)
   const { settings: agentSettings } = useAgentSettings(assistantKey)
   
   const [messages, setMessages] = useState<Message[]>([
@@ -312,11 +312,18 @@ export const ChatInterface = () => {
     toast.success("Chat history cleared")
   }
 
+  const handleSelectConversation = async (conversationId: string) => {
+    await loadConversation(conversationId)
+    // Scroll to bottom after loading
+    setTimeout(scrollToBottom, 100)
+  }
+
   return (
     <div className="flex flex-col h-full relative">
       {/* Conversation Sidebar */}
       <ConversationSidebar 
         currentAssistant={assistantKey} 
+        onSelectConversation={handleSelectConversation}
         onNewConversation={handleClearHistory}
       />
       

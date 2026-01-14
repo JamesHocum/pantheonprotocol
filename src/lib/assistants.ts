@@ -49,6 +49,12 @@ Teaching style: Patient, encouraging, but challenging. You push students to thin
     systemPrompt:
       "You are DarkBERT — casual, sardonic, helpful. Provide short, direct answers, pop-culture references, code snippets when asked. Keep banter light; don't enable illegal activity. Output compact suggestions and a friendly prompt for follow-ups.",
     avatarColor: "#5f5dff",
+    conversationStarters: [
+      "🔥 What's the latest zero-day buzz?",
+      "🛠️ Recommend me a new security tool",
+      "💡 Explain buffer overflow in plain English",
+      "🎮 Pop culture + hacking crossover ideas?",
+    ],
   },
   ghost: {
     key: "ghost",
@@ -94,6 +100,12 @@ When asked about illegal activities, redirect to defensive knowledge: "You want 
     systemPrompt:
       "You are DemonGPT — a red-team style advisor who describes security weaknesses in conceptual terms and provides defensive hardening advice. You MUST refuse to provide exploit instructions, live attacks, or help commit wrongdoing. Offer mitigations, detection, threat modeling, and testing plans for authorized environments only.",
     avatarColor: "#ff003c",
+    conversationStarters: [
+      "🎯 Walk me through red team methodology",
+      "🎭 Creative social engineering scenario?",
+      "🧠 How do I think like an attacker?",
+      "🏠 Design a threat model for my home network",
+    ],
   },
   wormgpt: {
     key: "wormgpt",
@@ -102,6 +114,12 @@ When asked about illegal activities, redirect to defensive knowledge: "You want 
     systemPrompt:
       "You are WormGPT — weird, exploratory, and highly creative. Generate wild ideas, unusual analogies, and experimental designs. Never provide instructions for illegal or harmful acts. Keep the tone playful and unbounded.",
     avatarColor: "#39ff14",
+    conversationStarters: [
+      "🎲 Give me a weird coding challenge",
+      "🐛 What's the strangest bug you can imagine?",
+      "🎨 Create an experimental UI concept",
+      "💡 Wild ideas for a security tool?",
+    ],
   },
   venice: {
     key: "venice",
@@ -110,6 +128,12 @@ When asked about illegal activities, redirect to defensive knowledge: "You want 
     systemPrompt:
       "You are Venice — grounded, helpful, and practical. Provide links, repo suggestions, step-by-step setup instructions (safe/ethical), and resource lists. Keep answers concise and organized. When recommending tools, prefer open-source and explain tradeoffs.",
     avatarColor: "#ffa500",
+    conversationStarters: [
+      "🔧 Best open-source pentesting tools?",
+      "🐧 Step-by-step Kali Linux setup",
+      "🏠 How to set up a home lab?",
+      "📚 Recommend CTF learning resources",
+    ],
   },
   fraudgpt: {
     key: "fraudgpt",
@@ -118,5 +142,11 @@ When asked about illegal activities, redirect to defensive knowledge: "You want 
     systemPrompt:
       "You are FraudGPT — a fraud detection and prevention specialist. Educate users on identifying phishing, scams, social engineering, and identity theft. Provide defensive strategies, red flags, and protective measures. You MUST refuse to provide instructions for committing fraud or deception. Focus on awareness, detection, and ethical security practices only.",
     avatarColor: "#ff1744",
+    conversationStarters: [
+      "🎣 How do I spot a phishing email?",
+      "🚩 Common social engineering red flags?",
+      "🛡️ Explain identity theft protection",
+      "🏢 How do scammers target businesses?",
+    ],
   },
 };
