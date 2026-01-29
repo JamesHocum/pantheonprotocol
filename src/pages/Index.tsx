@@ -7,7 +7,9 @@ import { UserAvatar } from "@/components/features/UserAvatar"
 import { AppSettings } from "@/components/features/AppSettings"
 import { VoiceAssistant } from "@/components/features/VoiceAssistant"
 import { HackerNewsFeed } from "@/components/features/HackerNewsFeed"
+import { XPDisplay } from "@/components/features/XPDisplay"
 import { InstallPrompt } from "@/components/ui/install-prompt"
+import { PWAInstallBanner } from "@/components/ui/pwa-install-banner"
 import { CourseLibrary } from "@/components/training/CourseLibrary"
 import { CourseViewer } from "@/components/training/CourseViewer"
 import { ProgressTracker } from "@/components/training/ProgressTracker"
@@ -62,6 +64,7 @@ const Index = () => {
         <div className="flex items-center justify-between mb-4">
           <CyberHeader />
           <div className="flex items-center gap-3">
+            {user && <XPDisplay compact />}
             {user ? (
               <div className="flex items-center gap-2">
                 {profile?.avatar_url ? (
@@ -226,6 +229,7 @@ const Index = () => {
         </div>
       </div>
       <InstallPrompt />
+      <PWAInstallBanner />
       <HackerNewsFeed />
     </div>
   )

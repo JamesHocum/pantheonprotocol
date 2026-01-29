@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Play, Lightbulb, Check, X, RefreshCw, Trophy, ChevronDown, ChevronUp } from "lucide-react"
+import { Play, Lightbulb, Check, X, RefreshCw, Trophy, ChevronDown, ChevronUp, Star } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
@@ -7,12 +7,14 @@ import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useExercises, ParsedExercise } from "@/hooks/useExercises"
+import { useXP, XP_REWARDS } from "@/hooks/useXP"
 import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "sonner"
 
 export const ExerciseRunner = () => {
   const { user } = useAuth()
   const { exercises, loading, error, markComplete, isCompleted, getCompletion } = useExercises()
+  const { addXP, checkBadges } = useXP()
   const [selectedExercise, setSelectedExercise] = useState<ParsedExercise | null>(null)
   const [userAnswer, setUserAnswer] = useState("")
   const [result, setResult] = useState<"pass" | "fail" | null>(null)
@@ -58,7 +60,16 @@ export const ExerciseRunner = () => {
       if (error) {
         toast.error("Failed to save progress")
       } else {
-        toast.success("🎉 Exercise completed!")
+        // Award XP based on difficulty
+        const xpAmount = selectedExercise.difficulty === 'advanced' 
+          ? XP_REWARDS.advanced 
+          : selectedExercise.difficulty === 'intermediate'
+            ? XP_REWARDS.intermediate
+            : XP_REWARDS.beginner
+        
+        await addXP(xpAmount, `Exercise: ${selectedExercise.title}`)
+        await checkBadges(selectedExercise.exercise_type, selectedExercise.difficulty)
+        toast.success(`🎉 Exercise completed! +${xpAmount} XP`)
       }
     }
 

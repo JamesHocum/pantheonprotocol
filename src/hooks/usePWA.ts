@@ -13,6 +13,7 @@ export const usePWA = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
     // Register service worker
@@ -42,8 +43,16 @@ export const usePWA = () => {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+    // Listen for online/offline status
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
     };
   }, []);
 
@@ -64,6 +73,7 @@ export const usePWA = () => {
   return {
     isInstallable,
     isInstalled,
+    isOffline,
     installApp
   };
 };

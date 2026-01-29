@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { useTrainingProgress } from "@/hooks/useTrainingProgress"
+import { useXP, XP_REWARDS } from "@/hooks/useXP"
 import { useAuth } from "@/contexts/AuthContext"
 import type { Course } from "@/hooks/useCourses"
 import type { Json } from "@/integrations/supabase/types"
@@ -29,6 +30,7 @@ const parseSyllabus = (syllabus: Json): SyllabusModule[] => {
 export const CourseViewer = ({ course, onBack }: CourseViewerProps) => {
   const { user } = useAuth()
   const { getProgressForCourse, startCourse, completeModule, calculateCompletion } = useTrainingProgress()
+  const { addXP, awardBadge } = useXP()
   const [loading, setLoading] = useState(false)
 
   const syllabus = parseSyllabus(course.syllabus)
@@ -71,7 +73,17 @@ export const CourseViewer = ({ course, onBack }: CourseViewerProps) => {
     if (error) {
       toast.error("Failed to update progress")
     } else {
-      toast.success("Module completed! 🎉")
+      await addXP(XP_REWARDS.course_module, `Module: ${syllabus[moduleIndex]?.title || 'Unknown'}`)
+      
+      // Check if course is now complete
+      const newCompletedModules = [...completedModules, moduleIndex]
+      if (newCompletedModules.length === syllabus.length) {
+        await addXP(XP_REWARDS.course_complete, `Course: ${course.title}`)
+        await awardBadge('course_completer')
+        toast.success("🎉 Course completed! 🏆")
+      } else {
+        toast.success(`Module completed! +${XP_REWARDS.course_module} XP`)
+      }
     }
   }
 

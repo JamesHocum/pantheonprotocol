@@ -13,6 +13,7 @@ import { AgentSettings } from "@/components/features/AgentSettings"
 import { CodeCanvas } from "@/components/features/CodeCanvas"
 import { ConversationSidebar } from "./ConversationSidebar"
 import { ConversationStarters } from "./ConversationStarters"
+import { ModelSelector } from "./ModelSelector"
 import { useAuth } from "@/contexts/AuthContext"
 import { useChatHistory } from "@/hooks/useChatHistory"
 import { useAgentSettings } from "@/hooks/useAgentSettings"
@@ -48,6 +49,7 @@ export const ChatInterface = () => {
   const [isTyping, setIsTyping] = useState(false)
   const [offlineMode, setOfflineMode] = useState(false)
   const [webSearchMode, setWebSearchMode] = useState(false)
+  const [selectedModel, setSelectedModel] = useState("google/gemini-2.5-flash")
   const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
@@ -207,6 +209,7 @@ export const ChatInterface = () => {
               { role: "user", content: messageContent }
             ],
             assistantKey,
+            model: selectedModel,
           }),
         })
 
@@ -429,7 +432,11 @@ export const ChatInterface = () => {
             ) : (
               <>
                 <Wifi className="h-3 w-3 text-primary" />
-                <span className="text-primary">ONLINE • Free Gemini</span>
+                <ModelSelector 
+                  selectedModel={selectedModel}
+                  onModelChange={setSelectedModel}
+                  compact
+                />
               </>
             )}
             {webSearchMode && (
