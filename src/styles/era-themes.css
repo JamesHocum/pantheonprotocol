@@ -1,0 +1,155 @@
+/* Era Theme System - CSS Variables for each decade */
+
+/* 1980s - Retro Arcade Era */
+[data-era="1980s"] {
+  --background: 260 20% 5%;
+  --foreground: 320 100% 85%;
+  --primary: 320 100% 60%;
+  --primary-foreground: 260 20% 5%;
+  --primary-glow: 320 100% 70%;
+  --secondary: 180 100% 50%;
+  --secondary-foreground: 260 20% 5%;
+  --secondary-glow: 180 100% 60%;
+  --card: 260 25% 10%;
+  --card-foreground: 320 100% 85%;
+  --card-border: 320 60% 40%;
+  --popover: 260 25% 8%;
+  --popover-foreground: 320 100% 85%;
+  --muted: 260 20% 15%;
+  --muted-foreground: 320 40% 65%;
+  --accent: 320 100% 55%;
+  --accent-foreground: 260 20% 5%;
+  --border: 320 50% 30%;
+  --input: 260 25% 12%;
+  --input-border: 320 70% 45%;
+  --ring: 320 100% 60%;
+  --glow-purple: 0 0 20px hsl(320 100% 60% / 0.6);
+  --glow-green: 0 0 20px hsl(180 100% 50% / 0.6);
+  --glow-cyber: 0 0 30px hsl(320 100% 60% / 0.5), 0 0 60px hsl(180 100% 50% / 0.3);
+}
+
+/* 1980s scanline effect */
+[data-era="1980s"] body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* 1990s - Matrix Era */
+[data-era="1990s"] {
+  --background: 120 15% 4%;
+  --foreground: 120 100% 70%;
+  --primary: 120 100% 50%;
+  --primary-foreground: 120 15% 4%;
+  --primary-glow: 120 100% 60%;
+  --secondary: 280 100% 60%;
+  --secondary-foreground: 120 15% 4%;
+  --secondary-glow: 280 100% 70%;
+  --card: 120 20% 8%;
+  --card-foreground: 120 100% 70%;
+  --card-border: 120 60% 30%;
+  --popover: 120 20% 6%;
+  --popover-foreground: 120 100% 70%;
+  --muted: 120 15% 12%;
+  --muted-foreground: 120 50% 50%;
+  --accent: 120 100% 45%;
+  --accent-foreground: 120 15% 4%;
+  --border: 120 40% 20%;
+  --input: 120 20% 10%;
+  --input-border: 120 70% 35%;
+  --ring: 120 100% 50%;
+  --glow-purple: 0 0 20px hsl(280 100% 60% / 0.5);
+  --glow-green: 0 0 20px hsl(120 100% 50% / 0.6);
+  --glow-cyber: 0 0 30px hsl(120 100% 50% / 0.5), 0 0 60px hsl(280 100% 60% / 0.2);
+}
+
+/* 1990s terminal cursor effect */
+[data-era="1990s"] .neon-text {
+  animation: terminal-blink 1s step-end infinite;
+}
+
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 2000s - Web 2.0 Era */
+[data-era="2000s"] {
+  --background: 220 25% 10%;
+  --foreground: 220 20% 90%;
+  --primary: 220 100% 55%;
+  --primary-foreground: 0 0% 100%;
+  --primary-glow: 220 100% 65%;
+  --secondary: 25 100% 55%;
+  --secondary-foreground: 0 0% 100%;
+  --secondary-glow: 25 100% 65%;
+  --card: 220 30% 15%;
+  --card-foreground: 220 20% 90%;
+  --card-border: 220 50% 35%;
+  --popover: 220 30% 12%;
+  --popover-foreground: 220 20% 90%;
+  --muted: 220 25% 18%;
+  --muted-foreground: 220 20% 65%;
+  --accent: 220 100% 50%;
+  --accent-foreground: 0 0% 100%;
+  --border: 220 35% 25%;
+  --input: 220 30% 18%;
+  --input-border: 220 60% 40%;
+  --ring: 220 100% 55%;
+  --glow-purple: 0 0 15px hsl(220 100% 55% / 0.4);
+  --glow-green: 0 0 15px hsl(25 100% 55% / 0.4);
+  --glow-cyber: 0 0 20px hsl(220 100% 55% / 0.4), 0 0 40px hsl(25 100% 55% / 0.2);
+}
+
+/* 2000s glossy effect on buttons */
+[data-era="2000s"] .cyberpunk-button,
+[data-era="2000s"] button {
+  background-image: linear-gradient(
+    180deg,
+    hsl(220 100% 70% / 0.3) 0%,
+    transparent 50%
+  );
+}
+
+/* 2020s - Current Cyberpunk (default in index.css) */
+[data-era="2020s"] {
+  /* Uses default variables from index.css */
+}
+
+/* Theme transition animations */
+:root {
+  transition: 
+    --background 0.5s ease,
+    --foreground 0.5s ease,
+    --primary 0.5s ease,
+    --secondary 0.5s ease;
+}
+
+/* Era-specific font imports would go here if using Google Fonts */
+[data-era="1980s"] {
+  font-family: 'VT323', 'Courier New', monospace;
+}
+
+[data-era="1990s"] {
+  font-family: 'Courier New', 'Lucida Console', monospace;
+}
+
+[data-era="2000s"] {
+  font-family: 'Verdana', 'Tahoma', sans-serif;
+}
+
+[data-era="2020s"] {
+  font-family: ui-monospace, 'Fira Code', 'Consolas', monospace;
+}

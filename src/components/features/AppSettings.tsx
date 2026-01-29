@@ -1,11 +1,16 @@
 import { useState } from "react"
-import { Settings, Shield, Mic, Phone, Search, Download, Smartphone, Image, Video } from "lucide-react"
+import { Settings, Shield, Mic, Phone, Search, Download, Smartphone, Image, Video, Palette, Bot } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { EraSkinToggle } from "./EraSkinToggle"
+import { LevelBadges } from "./LevelBadges"
+import { ModelSelector, AVAILABLE_MODELS } from "@/components/chat/ModelSelector"
+import { useAuth } from "@/contexts/AuthContext"
+import { supabase } from "@/integrations/supabase/client"
 
 interface SettingsState {
   offlineMode: boolean
@@ -21,6 +26,7 @@ interface SettingsState {
 }
 
 export const AppSettings = () => {
+  const { user, profile } = useAuth()
   const [settings, setSettings] = useState<SettingsState>({
     offlineMode: false,
     voiceActivation: false,
@@ -35,9 +41,20 @@ export const AppSettings = () => {
   })
 
   const [selectedLora, setSelectedLora] = useState("realistic-v1")
+  const [selectedModel, setSelectedModel] = useState(profile?.preferred_model || "google/gemini-2.5-flash")
 
   const updateSetting = (key: keyof SettingsState, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleModelChange = async (model: string) => {
+    setSelectedModel(model)
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ preferred_model: model })
+        .eq('id', user.id)
+    }
   }
 
   return (
@@ -45,8 +62,36 @@ export const AppSettings = () => {
       {/* Header */}
       <div className="text-center">
         <h2 className="text-2xl font-bold text-primary neon-text mb-2">Assistant Configuration</h2>
-        <p className="text-muted-foreground font-mono">Configure DarkBERT's capabilities and permissions</p>
+        <p className="text-muted-foreground font-mono">Configure DarkBERT's capabilities and preferences</p>
       </div>
+
+      {/* AI Model Selection */}
+      <Card className="glass-morphism border-card-border p-6">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Bot className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-bold text-primary">AI Model</h3>
+          </div>
+          <p className="text-sm text-muted-foreground font-mono mb-3">
+            Select the AI model for chat conversations
+          </p>
+          <ModelSelector 
+            selectedModel={selectedModel}
+            onModelChange={handleModelChange}
+          />
+        </div>
+      </Card>
+
+      {/* Era Skin System */}
+      <Card className="glass-morphism border-card-border p-6">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Palette className="h-5 w-5 text-secondary" />
+            <h3 className="text-lg font-bold text-secondary">Visual Theme</h3>
+          </div>
+          <EraSkinToggle />
+        </div>
+      </Card>
 
       {/* Core Assistant Features */}
       <Card className="glass-morphism border-card-border p-6">
@@ -216,6 +261,13 @@ export const AppSettings = () => {
           </div>
         </div>
       </Card>
+
+      {/* Badges & Achievements */}
+      {user && (
+        <Card className="glass-morphism border-card-border p-6">
+          <LevelBadges />
+        </Card>
+      )}
 
       {/* Permission Status */}
       <Card className="glass-morphism border-card-border p-4">

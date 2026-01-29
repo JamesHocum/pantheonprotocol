@@ -7,6 +7,8 @@ interface Profile {
   email: string | null
   display_name: string | null
   avatar_url: string | null
+  theme_era?: string | null
+  preferred_model?: string | null
 }
 
 interface AuthContextType {
