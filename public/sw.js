@@ -55,6 +55,9 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
+  // Skip OAuth redirect routes
+  if (url.pathname.startsWith('/~oauth')) return;
+
   // API requests - network first, then cache
   if (url.pathname.includes('/functions/') || 
       url.pathname.includes('/rest/') ||

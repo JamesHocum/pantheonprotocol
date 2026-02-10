@@ -28,7 +28,11 @@
   --glow-cyber: 0 0 30px hsl(320 100% 60% / 0.5), 0 0 60px hsl(180 100% 50% / 0.3);
 }
 
-/* 1980s scanline effect */
+[data-era="1980s"] * {
+  font-family: 'Press Start 2P', 'VT323', 'Courier New', monospace !important;
+}
+
+/* 1980s CRT scanline + flicker overlay */
 [data-era="1980s"] body::before {
   content: "";
   position: fixed;
@@ -43,9 +47,47 @@
     rgba(0, 0, 0, 0.15) 0px,
     rgba(0, 0, 0, 0.15) 1px,
     transparent 1px,
-    transparent 2px
+    transparent 3px
   );
+  animation: crt-flicker 0.15s infinite alternate;
 }
+
+@keyframes crt-flicker {
+  0% { opacity: 0.97; }
+  100% { opacity: 1; }
+}
+
+/* 1980s pixel text shadow on headings */
+[data-era="1980s"] h1,
+[data-era="1980s"] h2,
+[data-era="1980s"] h3,
+[data-era="1980s"] h4 {
+  text-shadow: 
+    2px 2px 0px hsl(180 100% 50% / 0.8),
+    -1px -1px 0px hsl(320 100% 60% / 0.5);
+}
+
+/* 1980s arcade button press */
+[data-era="1980s"] button:active {
+  transform: scale(0.92) !important;
+  filter: brightness(1.5) saturate(1.5);
+  transition: transform 0.05s, filter 0.05s;
+}
+
+/* 1980s rainbow border shimmer on active cards */
+@keyframes rainbow-border-80s {
+  0% { border-color: hsl(320 100% 60%); }
+  25% { border-color: hsl(180 100% 50%); }
+  50% { border-color: hsl(60 100% 60%); }
+  75% { border-color: hsl(280 100% 60%); }
+  100% { border-color: hsl(320 100% 60%); }
+}
+
+[data-era="1980s"] .neon-border {
+  animation: rainbow-border-80s 2s linear infinite;
+}
+
+/* ========================================== */
 
 /* 1990s - Matrix Era */
 [data-era="1990s"] {
@@ -75,15 +117,78 @@
   --glow-cyber: 0 0 30px hsl(120 100% 50% / 0.5), 0 0 60px hsl(280 100% 60% / 0.2);
 }
 
-/* 1990s terminal cursor effect */
-[data-era="1990s"] .neon-text {
-  animation: terminal-blink 1s step-end infinite;
+[data-era="1990s"] * {
+  font-family: 'VT323', 'Courier New', 'Lucida Console', monospace !important;
 }
 
-@keyframes terminal-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+/* 1990s glitch text effect */
+@keyframes glitch-90s {
+  0%, 100% { 
+    text-shadow: 2px 0 hsl(120 100% 50%), -2px 0 hsl(280 100% 60%);
+    transform: translate(0);
+  }
+  20% { 
+    text-shadow: -2px 0 hsl(120 100% 50%), 2px 0 hsl(280 100% 60%);
+    transform: translate(-1px, 1px);
+  }
+  40% { 
+    text-shadow: 2px 0 hsl(120 100% 50%), -2px 0 hsl(280 100% 60%);
+    transform: translate(1px, -1px);
+  }
+  60% { 
+    text-shadow: -2px 0 hsl(120 100% 50%), 2px 0 hsl(280 100% 60%);
+    transform: translate(-1px, 0);
+  }
 }
+
+[data-era="1990s"] .neon-text {
+  animation: glitch-90s 3s ease-in-out infinite;
+}
+
+/* 1990s green phosphor glow on all text */
+[data-era="1990s"] body {
+  text-shadow: 0 0 8px hsl(120 100% 50% / 0.3);
+}
+
+/* 1990s terminal cursor on inputs */
+@keyframes terminal-cursor {
+  0%, 100% { border-right-color: hsl(120 100% 50%); }
+  50% { border-right-color: transparent; }
+}
+
+[data-era="1990s"] input,
+[data-era="1990s"] textarea {
+  border-right: 3px solid hsl(120 100% 50%);
+  animation: terminal-cursor 1s step-end infinite;
+}
+
+/* 1990s digital rain background */
+[data-era="1990s"] body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 20px,
+      hsl(120 100% 50% / 0.03) 20px,
+      hsl(120 100% 50% / 0.03) 21px
+    );
+  animation: rain-scroll 8s linear infinite;
+}
+
+@keyframes rain-scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200px; }
+}
+
+/* ========================================== */
 
 /* 2000s - Web 2.0 Era */
 [data-era="2000s"] {
@@ -113,43 +218,97 @@
   --glow-cyber: 0 0 20px hsl(220 100% 55% / 0.4), 0 0 40px hsl(25 100% 55% / 0.2);
 }
 
-/* 2000s glossy effect on buttons */
-[data-era="2000s"] .cyberpunk-button,
+[data-era="2000s"] * {
+  font-family: 'Trebuchet MS', 'Verdana', 'Tahoma', sans-serif !important;
+}
+
+/* 2000s glossy aqua button shine sweep */
+@keyframes aqua-shine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
 [data-era="2000s"] button {
   background-image: linear-gradient(
-    180deg,
-    hsl(220 100% 70% / 0.3) 0%,
-    transparent 50%
-  );
+    110deg,
+    transparent 20%,
+    hsl(220 100% 90% / 0.25) 40%,
+    hsl(220 100% 90% / 0.35) 50%,
+    transparent 60%
+  ) !important;
+  background-size: 200% 100%;
+  border-radius: 12px !important;
+  animation: aqua-shine 4s ease-in-out infinite;
 }
+
+/* 2000s extra rounded bubbly aesthetic */
+[data-era="2000s"] .glass-morphism,
+[data-era="2000s"] [class*="card"] {
+  border-radius: 16px !important;
+  box-shadow: 
+    0 4px 12px hsl(220 100% 55% / 0.2),
+    inset 0 1px 0 hsl(220 100% 90% / 0.15);
+}
+
+/* 2000s gradient text on headings */
+[data-era="2000s"] h1,
+[data-era="2000s"] h2,
+[data-era="2000s"] h3 {
+  background: linear-gradient(135deg, hsl(220 100% 65%), hsl(25 100% 55%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================== */
 
 /* 2020s - Current Cyberpunk (default in index.css) */
 [data-era="2020s"] {
   /* Uses default variables from index.css */
 }
 
+[data-era="2020s"] * {
+  font-family: 'JetBrains Mono', ui-monospace, 'Fira Code', 'Consolas', monospace !important;
+}
+
+/* 2020s holographic shimmer on cards */
+@keyframes holo-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+[data-era="2020s"] .glass-morphism {
+  background: 
+    linear-gradient(
+      135deg,
+      hsl(280 100% 70% / 0.05) 0%,
+      hsl(120 100% 50% / 0.03) 25%,
+      hsl(280 100% 70% / 0.05) 50%,
+      hsl(120 100% 50% / 0.03) 75%,
+      hsl(280 100% 70% / 0.05) 100%
+    ),
+    hsl(240 10% 12% / 0.8);
+  background-size: 400% 400%;
+  animation: holo-shimmer 8s ease infinite;
+  backdrop-filter: blur(16px);
+}
+
+/* 2020s enhanced glassmorphism */
+[data-era="2020s"] .neon-border {
+  box-shadow: 
+    0 0 15px hsl(280 100% 70% / 0.5),
+    0 0 30px hsl(280 100% 70% / 0.2),
+    inset 0 0 15px hsl(280 100% 70% / 0.1);
+}
+
+/* ========================================== */
+
 /* Theme transition animations */
-:root {
+* {
   transition: 
-    --background 0.5s ease,
-    --foreground 0.5s ease,
-    --primary 0.5s ease,
-    --secondary 0.5s ease;
-}
-
-/* Era-specific font imports would go here if using Google Fonts */
-[data-era="1980s"] {
-  font-family: 'VT323', 'Courier New', monospace;
-}
-
-[data-era="1990s"] {
-  font-family: 'Courier New', 'Lucida Console', monospace;
-}
-
-[data-era="2000s"] {
-  font-family: 'Verdana', 'Tahoma', sans-serif;
-}
-
-[data-era="2020s"] {
-  font-family: ui-monospace, 'Fira Code', 'Consolas', monospace;
+    background-color 0.4s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.4s ease;
 }
