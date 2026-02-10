@@ -76,7 +76,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
           setUnlockedEras(unlocked);
         }
       } else {
-        // Use localStorage for anonymous users
+        // Anonymous users: unlock all eras for demo/testing
+        setUnlockedEras(['1980s', '1990s', '2000s', '2020s']);
         const savedEra = localStorage.getItem('theme_era');
         if (savedEra) {
           setCurrentEra(savedEra as EraTheme);

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useExercises, ParsedExercise } from "@/hooks/useExercises"
 import { useXP, XP_REWARDS } from "@/hooks/useXP"
+import { useEraSound } from "@/hooks/useEraSound"
 import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "sonner"
 
@@ -15,6 +16,7 @@ export const ExerciseRunner = () => {
   const { user } = useAuth()
   const { exercises, loading, error, markComplete, isCompleted, getCompletion } = useExercises()
   const { addXP, checkBadges } = useXP()
+  const { playSuccess, playError } = useEraSound()
   const [selectedExercise, setSelectedExercise] = useState<ParsedExercise | null>(null)
   const [userAnswer, setUserAnswer] = useState("")
   const [result, setResult] = useState<"pass" | "fail" | null>(null)
@@ -54,6 +56,7 @@ export const ExerciseRunner = () => {
     const passed = normalizedAnswer === normalizedExpected
 
     setResult(passed ? "pass" : "fail")
+    if (passed) playSuccess(); else playError();
 
     if (passed && user) {
       const { error } = await markComplete(selectedExercise.id, 100)

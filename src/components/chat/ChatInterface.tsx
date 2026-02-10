@@ -49,7 +49,7 @@ export const ChatInterface = () => {
   const [isTyping, setIsTyping] = useState(false)
   const [offlineMode, setOfflineMode] = useState(false)
   const [webSearchMode, setWebSearchMode] = useState(false)
-  const [selectedModel, setSelectedModel] = useState("google/gemini-2.5-flash")
+  const [selectedModel, setSelectedModel] = useState(profile?.preferred_model || "google/gemini-2.5-flash")
   const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
@@ -434,7 +434,12 @@ export const ChatInterface = () => {
                 <Wifi className="h-3 w-3 text-primary" />
                 <ModelSelector 
                   selectedModel={selectedModel}
-                  onModelChange={setSelectedModel}
+                  onModelChange={(model) => {
+                    setSelectedModel(model)
+                    if (user) {
+                      supabase.from('profiles').update({ preferred_model: model }).eq('id', user.id)
+                    }
+                  }}
                   compact
                 />
               </>

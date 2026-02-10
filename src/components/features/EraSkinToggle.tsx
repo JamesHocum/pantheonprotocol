@@ -1,6 +1,9 @@
-import { Lock, Check } from 'lucide-react';
+import { Lock, Check, Volume2, VolumeX } from 'lucide-react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import { useTheme, EraTheme } from '@/contexts/ThemeContext';
+import { useEraSound } from '@/hooks/useEraSound';
 import { cn } from '@/lib/utils';
 
 interface EraConfig {
@@ -44,6 +47,22 @@ const ERA_CONFIGS: EraConfig[] = [
 
 export const EraSkinToggle = () => {
   const { currentEra, setEra, isEraUnlocked } = useTheme();
+  const { playClick, playSuccess } = useEraSound();
+  const [soundEnabled, setSoundEnabled] = useState(
+    () => localStorage.getItem('era_sounds_enabled') !== 'false'
+  );
+
+  const handleSoundToggle = (enabled: boolean) => {
+    setSoundEnabled(enabled);
+    localStorage.setItem('era_sounds_enabled', String(enabled));
+  };
+
+  const handleSelectEra = (era: EraTheme) => {
+    if (!isEraUnlocked(era)) return;
+    playClick();
+    setEra(era);
+    playSuccess();
+  };
 
   return (
     <div className="space-y-4">
@@ -62,7 +81,7 @@ export const EraSkinToggle = () => {
           return (
             <Card
               key={era.id}
-              onClick={() => unlocked && setEra(era.id)}
+              onClick={() => handleSelectEra(era.id)}
               className={cn(
                 'relative p-4 cursor-pointer transition-all duration-300 glass-morphism',
                 unlocked ? 'hover:scale-102 hover:shadow-lg' : 'opacity-60 cursor-not-allowed',
@@ -113,6 +132,19 @@ export const EraSkinToggle = () => {
             </Card>
           );
         })}
+      </div>
+
+      {/* Sound Toggle */}
+      <div className="flex items-center justify-between p-3 rounded-lg bg-card/30 border border-border/30">
+        <div className="flex items-center gap-2">
+          {soundEnabled ? (
+            <Volume2 className="h-4 w-4 text-primary" />
+          ) : (
+            <VolumeX className="h-4 w-4 text-muted-foreground" />
+          )}
+          <label className="text-sm font-mono text-foreground">Era Sound Effects</label>
+        </div>
+        <Switch checked={soundEnabled} onCheckedChange={handleSoundToggle} />
       </div>
     </div>
   );
