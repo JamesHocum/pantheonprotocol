@@ -88,7 +88,7 @@
 
   body {
     @apply bg-background text-foreground font-mono;
-    background-image: url('./assets/cyber-cafe-bg.jpg');
+    background-image: url('./assets/cyberpunk-cafe-bg.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
