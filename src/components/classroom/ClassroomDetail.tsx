@@ -1,16 +1,21 @@
 import { useState, useEffect, useCallback } from "react"
+import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Copy, Plus, Trash2, AlertTriangle, Clock } from "lucide-react"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ArrowLeft, Copy, Plus, Trash2, AlertTriangle, Clock, CalendarIcon } from "lucide-react"
 import { ProgressGrid } from "./ProgressGrid"
 import { ClassroomAnalytics } from "./ClassroomAnalytics"
 import { ClassroomLeaderboard } from "./ClassroomLeaderboard"
 import { AchievementsFeed } from "./AchievementsFeed"
 import { useCourses } from "@/hooks/useCourses"
 import { useClassroomRealtime } from "@/hooks/useClassroomRealtime"
+import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 import type { Classroom, ClassroomAssignment, ClassroomMember, MemberProgress } from "@/hooks/useClassrooms"
 
 interface XPData {
@@ -33,6 +38,7 @@ interface Props {
 }
 
 export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook }: Props) => {
+  const { user } = useAuth()
   const { courses } = useCourses()
   const [members, setMembers] = useState<ClassroomMember[]>([])
   const [assignments, setAssignments] = useState<ClassroomAssignment[]>([])
@@ -40,6 +46,7 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
   const [xpData, setXpData] = useState<XPData[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCourseId, setSelectedCourseId] = useState("")
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -75,11 +82,25 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
     onProgressChange: loadData,
   })
 
+  // Notify students of overdue assignments on load
+  useEffect(() => {
+    if (isInstructor || !user || assignments.length === 0) return
+    const overdueAssignments = assignments.filter(a => a.due_date && new Date(a.due_date) < new Date())
+    if (overdueAssignments.length > 0) {
+      toast.warning(
+        `You have ${overdueAssignments.length} overdue assignment${overdueAssignments.length > 1 ? 's' : ''}!`,
+        { icon: "⚠️", duration: 6000 }
+      )
+    }
+  }, [assignments, isInstructor, user])
+
   const handleAssign = async () => {
     if (!selectedCourseId) return
-    const success = await classroomHook.assignCourse(classroom.id, selectedCourseId)
+    const dueDateStr = dueDate ? dueDate.toISOString() : undefined
+    const success = await classroomHook.assignCourse(classroom.id, selectedCourseId, dueDateStr)
     if (success) {
       setSelectedCourseId("")
+      setDueDate(undefined)
       await loadData()
     }
   }
@@ -145,20 +166,49 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
         </CardHeader>
         <CardContent className="space-y-2">
           {isInstructor && availableCourses.length > 0 && (
-            <div className="flex gap-2 mb-3">
-              <select
-                value={selectedCourseId}
-                onChange={e => setSelectedCourseId(e.target.value)}
-                className="flex-1 h-9 rounded-md border border-input bg-background/50 px-3 text-xs font-mono"
-              >
-                <option value="">Select a course to assign...</option>
-                {availableCourses.map(c => (
-                  <option key={c.id} value={c.id}>{c.title} ({c.difficulty})</option>
-                ))}
-              </select>
-              <CyberpunkButton variant="neon" size="sm" onClick={handleAssign} disabled={!selectedCourseId}>
-                <Plus className="h-4 w-4" />
-              </CyberpunkButton>
+            <div className="space-y-2 mb-3">
+              <div className="flex gap-2">
+                <select
+                  value={selectedCourseId}
+                  onChange={e => setSelectedCourseId(e.target.value)}
+                  className="flex-1 h-9 rounded-md border border-input bg-background/50 px-3 text-xs font-mono"
+                >
+                  <option value="">Select a course to assign...</option>
+                  {availableCourses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title} ({c.difficulty})</option>
+                  ))}
+                </select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={cn(
+                      "h-9 px-3 rounded-md border border-input bg-background/50 text-xs font-mono flex items-center gap-1.5 hover:bg-background/80 transition-colors",
+                      !dueDate && "text-muted-foreground"
+                    )}>
+                      <CalendarIcon className="h-3.5 w-3.5" />
+                      {dueDate ? format(dueDate, "MMM d") : "Due date"}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={dueDate}
+                      onSelect={setDueDate}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <CyberpunkButton variant="neon" size="sm" onClick={handleAssign} disabled={!selectedCourseId}>
+                  <Plus className="h-4 w-4" />
+                </CyberpunkButton>
+              </div>
+              {dueDate && (
+                <p className="text-[10px] font-mono text-muted-foreground">
+                  Due: {format(dueDate, "PPP")}
+                  <button onClick={() => setDueDate(undefined)} className="ml-2 text-destructive hover:underline">clear</button>
+                </p>
+              )}
             </div>
           )}
           {assignments.map(a => {
