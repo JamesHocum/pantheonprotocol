@@ -82,11 +82,25 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
     onProgressChange: loadData,
   })
 
+  // Notify students of overdue assignments on load
+  useEffect(() => {
+    if (isInstructor || !user || assignments.length === 0) return
+    const overdueAssignments = assignments.filter(a => a.due_date && new Date(a.due_date) < new Date())
+    if (overdueAssignments.length > 0) {
+      toast.warning(
+        `You have ${overdueAssignments.length} overdue assignment${overdueAssignments.length > 1 ? 's' : ''}!`,
+        { icon: "⚠️", duration: 6000 }
+      )
+    }
+  }, [assignments, isInstructor, user])
+
   const handleAssign = async () => {
     if (!selectedCourseId) return
-    const success = await classroomHook.assignCourse(classroom.id, selectedCourseId)
+    const dueDateStr = dueDate ? dueDate.toISOString() : undefined
+    const success = await classroomHook.assignCourse(classroom.id, selectedCourseId, dueDateStr)
     if (success) {
       setSelectedCourseId("")
+      setDueDate(undefined)
       await loadData()
     }
   }
