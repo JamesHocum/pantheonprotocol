@@ -191,6 +191,11 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
         </CardContent>
       </Card>
 
+      {/* Achievements Feed */}
+      {progress.length > 0 && (
+        <AchievementsFeed members={members} assignments={assignments} progress={progress} />
+      )}
+
       {/* Leaderboard (visible to all) */}
       {members.length > 0 && (
         <ClassroomLeaderboard members={members} assignments={assignments} progress={progress} xpData={xpData} />
