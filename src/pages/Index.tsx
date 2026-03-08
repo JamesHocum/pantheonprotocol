@@ -18,7 +18,7 @@ import { ExerciseRunner } from "@/components/training/ExerciseRunner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink, GraduationCap, BookOpen, Wrench, Trophy, Code } from "lucide-react"
+import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink, GraduationCap, BookOpen, Wrench, Trophy, Code, Users } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import type { Course } from "@/hooks/useCourses"
 
