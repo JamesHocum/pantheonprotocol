@@ -38,6 +38,7 @@ interface Props {
 }
 
 export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook }: Props) => {
+  const { user } = useAuth()
   const { courses } = useCourses()
   const [members, setMembers] = useState<ClassroomMember[]>([])
   const [assignments, setAssignments] = useState<ClassroomAssignment[]>([])
@@ -45,6 +46,7 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
   const [xpData, setXpData] = useState<XPData[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCourseId, setSelectedCourseId] = useState("")
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined)
 
   const loadData = useCallback(async () => {
     setLoading(true)
