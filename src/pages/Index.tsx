@@ -6,6 +6,7 @@ import { ImageGeneration } from "@/components/features/ImageGeneration"
 import { UserAvatar } from "@/components/features/UserAvatar"
 import { AppSettings } from "@/components/features/AppSettings"
 import { VoiceAssistant } from "@/components/features/VoiceAssistant"
+import { ClassroomDashboard } from "@/components/classroom/ClassroomDashboard"
 import { HackerNewsFeed } from "@/components/features/HackerNewsFeed"
 import { XPDisplay } from "@/components/features/XPDisplay"
 import { InstallPrompt } from "@/components/ui/install-prompt"
@@ -18,7 +19,7 @@ import { ExerciseRunner } from "@/components/training/ExerciseRunner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink, GraduationCap, BookOpen, Wrench, Trophy, Code } from "lucide-react"
+import { MessageSquare, Image, User, Settings, Mic, LogIn, ExternalLink, GraduationCap, BookOpen, Wrench, Trophy, Code, Users } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import type { Course } from "@/hooks/useCourses"
 
@@ -114,7 +115,7 @@ const Index = () => {
         
         <div className="glass-morphism rounded-xl border border-card-border p-6 h-[calc(100vh-240px)]">
           <Tabs defaultValue="chat" className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-6 bg-card/50 border border-card-border">
+            <TabsList className="grid w-full grid-cols-7 bg-card/50 border border-card-border">
               <TabsTrigger 
                 value="chat" 
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow-purple"
@@ -128,6 +129,13 @@ const Index = () => {
               >
                 <GraduationCap className="h-4 w-4 mr-2" />
                 Academy
+              </TabsTrigger>
+              <TabsTrigger 
+                value="classroom"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow-purple"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Classroom
               </TabsTrigger>
               <TabsTrigger 
                 value="images"
@@ -205,6 +213,10 @@ const Index = () => {
                     </TabsContent>
                   </Tabs>
                 )}
+              </TabsContent>
+
+              <TabsContent value="classroom" className="h-full mt-0 overflow-y-auto">
+                <ClassroomDashboard />
               </TabsContent>
               
               <TabsContent value="images" className="h-full mt-0 overflow-y-auto">
