@@ -150,6 +150,11 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
         </CardContent>
       </Card>
 
+      {/* Analytics (instructor only) */}
+      {isInstructor && members.length > 0 && (
+        <ClassroomAnalytics members={members} assignments={assignments} progress={progress} />
+      )}
+
       {/* Progress Grid (instructor only) */}
       {isInstructor && assignments.length > 0 && members.length > 0 && (
         <ProgressGrid progress={progress} assignments={assignments} members={members} />
