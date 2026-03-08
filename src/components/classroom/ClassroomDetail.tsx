@@ -161,23 +161,32 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
               </CyberpunkButton>
             </div>
           )}
-          {assignments.map(a => (
-            <div key={a.id} className="flex items-center justify-between py-1 px-2 rounded bg-background/30">
-              <div>
-                <span className="text-sm font-mono text-foreground">{a.course?.title || "Unknown Course"}</span>
-                {a.due_date && (
-                  <span className="text-xs text-muted-foreground ml-2 font-mono">
-                    Due: {new Date(a.due_date).toLocaleDateString()}
-                  </span>
+          {assignments.map(a => {
+            const isOverdue = a.due_date && new Date(a.due_date) < new Date()
+            const isDueSoon = a.due_date && !isOverdue && (new Date(a.due_date).getTime() - Date.now()) < 3 * 24 * 60 * 60 * 1000
+            return (
+              <div key={a.id} className={`flex items-center justify-between py-1.5 px-2 rounded transition-colors ${isOverdue ? 'bg-destructive/10 border border-destructive/30' : isDueSoon ? 'bg-accent/20 border border-accent/30' : 'bg-background/30'}`}>
+                <div className="flex items-center gap-2">
+                  {isOverdue && <AlertTriangle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />}
+                  {isDueSoon && !isOverdue && <Clock className="h-3.5 w-3.5 text-accent-foreground flex-shrink-0" />}
+                  <div>
+                    <span className="text-sm font-mono text-foreground">{a.course?.title || "Unknown Course"}</span>
+                    {a.due_date && (
+                      <span className={`text-xs ml-2 font-mono ${isOverdue ? 'text-destructive font-semibold' : isDueSoon ? 'text-accent-foreground' : 'text-muted-foreground'}`}>
+                        {isOverdue ? 'OVERDUE — ' : isDueSoon ? 'Due soon — ' : 'Due: '}
+                        {new Date(a.due_date).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {isInstructor && (
+                  <button onClick={() => handleRemoveAssignment(a.id)} className="p-1 rounded hover:bg-destructive/20">
+                    <Trash2 className="h-3 w-3 text-destructive" />
+                  </button>
                 )}
               </div>
-              {isInstructor && (
-                <button onClick={() => handleRemoveAssignment(a.id)} className="p-1 rounded hover:bg-destructive/20">
-                  <Trash2 className="h-3 w-3 text-destructive" />
-                </button>
-              )}
-            </div>
-          ))}
+            )
+          })}
           {assignments.length === 0 && <p className="text-xs text-muted-foreground font-mono">No courses assigned yet</p>}
         </CardContent>
       </Card>
