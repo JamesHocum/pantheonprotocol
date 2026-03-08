@@ -254,14 +254,14 @@ export const useClassrooms = () => {
     return results
   }
 
-  const getMemberCount = async (classroomId: string): Promise<number> => {
+  const getMemberCount = useCallback(async (classroomId: string): Promise<number> => {
     const { count, error } = await supabase
       .from("classroom_members")
       .select("*", { count: "exact", head: true })
       .eq("classroom_id", classroomId)
     if (error) return 0
     return count || 0
-  }
+  }, [])
 
   return {
     myClassrooms,

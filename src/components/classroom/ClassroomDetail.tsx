@@ -7,6 +7,7 @@ import { ProgressGrid } from "./ProgressGrid"
 import { useCourses } from "@/hooks/useCourses"
 import { toast } from "sonner"
 import type { Classroom, ClassroomAssignment, ClassroomMember, MemberProgress } from "@/hooks/useClassrooms"
+import { ClassroomAnalytics } from "./ClassroomAnalytics"
 
 interface Props {
   classroom: Classroom
@@ -148,6 +149,11 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
           {assignments.length === 0 && <p className="text-xs text-muted-foreground font-mono">No courses assigned yet</p>}
         </CardContent>
       </Card>
+
+      {/* Analytics (instructor only) */}
+      {isInstructor && members.length > 0 && (
+        <ClassroomAnalytics members={members} assignments={assignments} progress={progress} />
+      )}
 
       {/* Progress Grid (instructor only) */}
       {isInstructor && assignments.length > 0 && members.length > 0 && (
