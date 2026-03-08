@@ -1,13 +1,22 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Copy, Plus, Trash2 } from "lucide-react"
 import { ProgressGrid } from "./ProgressGrid"
+import { ClassroomAnalytics } from "./ClassroomAnalytics"
+import { ClassroomLeaderboard } from "./ClassroomLeaderboard"
 import { useCourses } from "@/hooks/useCourses"
+import { useClassroomRealtime } from "@/hooks/useClassroomRealtime"
+import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import type { Classroom, ClassroomAssignment, ClassroomMember, MemberProgress } from "@/hooks/useClassrooms"
-import { ClassroomAnalytics } from "./ClassroomAnalytics"
+
+interface XPData {
+  user_id: string
+  total_xp: number
+  current_level: number
+}
 
 interface Props {
   classroom: Classroom
@@ -27,21 +36,43 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
   const [members, setMembers] = useState<ClassroomMember[]>([])
   const [assignments, setAssignments] = useState<ClassroomAssignment[]>([])
   const [progress, setProgress] = useState<MemberProgress[]>([])
+  const [xpData, setXpData] = useState<XPData[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCourseId, setSelectedCourseId] = useState("")
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true)
     const [m, a, p] = await Promise.all([
       classroomHook.getMembers(classroom.id),
       classroomHook.getAssignments(classroom.id),
       classroomHook.getClassroomProgress(classroom.id),
     ])
-    setMembers(m); setAssignments(a); setProgress(p)
-    setLoading(false)
-  }
+    setMembers(m)
+    setAssignments(a)
+    setProgress(p)
 
-  useEffect(() => { loadData() }, [classroom.id])
+    // Fetch XP data for leaderboard
+    if (m.length > 0) {
+      const userIds = m.map(member => member.user_id)
+      const { data: xp } = await supabase
+        .from("user_xp")
+        .select("user_id, total_xp, current_level")
+        .in("user_id", userIds)
+      setXpData((xp as XPData[]) || [])
+    }
+
+    setLoading(false)
+  }, [classroom.id, classroomHook])
+
+  useEffect(() => { loadData() }, [loadData])
+
+  // Real-time notifications
+  useClassroomRealtime({
+    classroomIds: [classroom.id],
+    isInstructor,
+    onMemberChange: loadData,
+    onProgressChange: loadData,
+  })
 
   const handleAssign = async () => {
     if (!selectedCourseId) return
@@ -149,6 +180,11 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
           {assignments.length === 0 && <p className="text-xs text-muted-foreground font-mono">No courses assigned yet</p>}
         </CardContent>
       </Card>
+
+      {/* Leaderboard (visible to all) */}
+      {members.length > 0 && (
+        <ClassroomLeaderboard members={members} assignments={assignments} progress={progress} xpData={xpData} />
+      )}
 
       {/* Analytics (instructor only) */}
       {isInstructor && members.length > 0 && (
