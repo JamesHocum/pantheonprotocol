@@ -166,20 +166,49 @@ export const ClassroomDetail = ({ classroom, isInstructor, onBack, classroomHook
         </CardHeader>
         <CardContent className="space-y-2">
           {isInstructor && availableCourses.length > 0 && (
-            <div className="flex gap-2 mb-3">
-              <select
-                value={selectedCourseId}
-                onChange={e => setSelectedCourseId(e.target.value)}
-                className="flex-1 h-9 rounded-md border border-input bg-background/50 px-3 text-xs font-mono"
-              >
-                <option value="">Select a course to assign...</option>
-                {availableCourses.map(c => (
-                  <option key={c.id} value={c.id}>{c.title} ({c.difficulty})</option>
-                ))}
-              </select>
-              <CyberpunkButton variant="neon" size="sm" onClick={handleAssign} disabled={!selectedCourseId}>
-                <Plus className="h-4 w-4" />
-              </CyberpunkButton>
+            <div className="space-y-2 mb-3">
+              <div className="flex gap-2">
+                <select
+                  value={selectedCourseId}
+                  onChange={e => setSelectedCourseId(e.target.value)}
+                  className="flex-1 h-9 rounded-md border border-input bg-background/50 px-3 text-xs font-mono"
+                >
+                  <option value="">Select a course to assign...</option>
+                  {availableCourses.map(c => (
+                    <option key={c.id} value={c.id}>{c.title} ({c.difficulty})</option>
+                  ))}
+                </select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={cn(
+                      "h-9 px-3 rounded-md border border-input bg-background/50 text-xs font-mono flex items-center gap-1.5 hover:bg-background/80 transition-colors",
+                      !dueDate && "text-muted-foreground"
+                    )}>
+                      <CalendarIcon className="h-3.5 w-3.5" />
+                      {dueDate ? format(dueDate, "MMM d") : "Due date"}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={dueDate}
+                      onSelect={setDueDate}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <CyberpunkButton variant="neon" size="sm" onClick={handleAssign} disabled={!selectedCourseId}>
+                  <Plus className="h-4 w-4" />
+                </CyberpunkButton>
+              </div>
+              {dueDate && (
+                <p className="text-[10px] font-mono text-muted-foreground">
+                  Due: {format(dueDate, "PPP")}
+                  <button onClick={() => setDueDate(undefined)} className="ml-2 text-destructive hover:underline">clear</button>
+                </p>
+              )}
             </div>
           )}
           {assignments.map(a => {

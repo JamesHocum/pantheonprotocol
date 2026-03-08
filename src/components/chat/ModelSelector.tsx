@@ -1,4 +1,4 @@
-import { Bot, Zap, Brain, Sparkles, ChevronDown } from 'lucide-react';
+import { Bot, Zap, Brain, Sparkles, Eye, Image, ChevronDown } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -11,46 +11,83 @@ import { Badge } from '@/components/ui/badge';
 interface Model {
   id: string;
   name: string;
-  speed: 'fastest' | 'fast' | 'medium';
+  speed: 'fastest' | 'fast' | 'medium' | 'slow';
   description: string;
   icon: React.ReactNode;
 }
 
 const AVAILABLE_MODELS: Model[] = [
+  // Google models
   {
     id: 'google/gemini-2.5-flash',
-    name: 'Gemini Flash',
+    name: 'Gemini 2.5 Flash',
     speed: 'fast',
-    description: 'Balanced speed & capability',
+    description: 'Balanced speed & multimodal reasoning',
     icon: <Zap className="h-4 w-4" />,
   },
   {
+    id: 'google/gemini-2.5-flash-lite',
+    name: 'Gemini 2.5 Flash Lite',
+    speed: 'fastest',
+    description: 'Cheapest & fastest, simple tasks',
+    icon: <Sparkles className="h-4 w-4" />,
+  },
+  {
     id: 'google/gemini-2.5-pro',
-    name: 'Gemini Pro',
-    speed: 'medium',
-    description: 'Complex reasoning',
+    name: 'Gemini 2.5 Pro',
+    speed: 'slow',
+    description: 'Top-tier visual + text + complex reasoning',
     icon: <Brain className="h-4 w-4" />,
   },
   {
-    id: 'google/gemini-2.5-flash-lite',
-    name: 'Gemini Lite',
-    speed: 'fastest',
-    description: 'Quick responses',
-    icon: <Sparkles className="h-4 w-4" />,
+    id: 'google/gemini-3.1-pro-preview',
+    name: 'Gemini 3.1 Pro',
+    speed: 'medium',
+    description: 'Next-gen reasoning model preview',
+    icon: <Brain className="h-4 w-4" />,
+  },
+  {
+    id: 'google/gemini-3-flash-preview',
+    name: 'Gemini 3 Flash',
+    speed: 'fast',
+    description: 'Fast next-gen balanced model',
+    icon: <Zap className="h-4 w-4" />,
+  },
+  {
+    id: 'google/gemini-3-pro-image-preview',
+    name: 'Gemini 3 Pro Image',
+    speed: 'medium',
+    description: 'Next-gen image generation',
+    icon: <Image className="h-4 w-4" />,
+  },
+  // OpenAI models
+  {
+    id: 'openai/gpt-5',
+    name: 'GPT-5',
+    speed: 'slow',
+    description: 'Powerful all-rounder, best accuracy',
+    icon: <Bot className="h-4 w-4" />,
   },
   {
     id: 'openai/gpt-5-mini',
     name: 'GPT-5 Mini',
     speed: 'medium',
-    description: 'Strong reasoning',
+    description: 'Strong reasoning at lower cost',
     icon: <Bot className="h-4 w-4" />,
   },
   {
     id: 'openai/gpt-5-nano',
     name: 'GPT-5 Nano',
     speed: 'fast',
-    description: 'Simple tasks',
+    description: 'Speed & cost optimized',
     icon: <Sparkles className="h-4 w-4" />,
+  },
+  {
+    id: 'openai/gpt-5.2',
+    name: 'GPT-5.2',
+    speed: 'slow',
+    description: 'Latest enhanced reasoning',
+    icon: <Eye className="h-4 w-4" />,
   },
 ];
 
@@ -58,6 +95,7 @@ const SPEED_COLORS = {
   fastest: 'bg-secondary text-secondary-foreground',
   fast: 'bg-primary/80 text-primary-foreground',
   medium: 'bg-accent text-accent-foreground',
+  slow: 'bg-muted text-muted-foreground',
 };
 
 interface ModelSelectorProps {
