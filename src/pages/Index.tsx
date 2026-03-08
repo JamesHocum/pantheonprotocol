@@ -115,7 +115,7 @@ const Index = () => {
         
         <div className="glass-morphism rounded-xl border border-card-border p-6 h-[calc(100vh-240px)]">
           <Tabs defaultValue="chat" className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-6 bg-card/50 border border-card-border">
+            <TabsList className="grid w-full grid-cols-7 bg-card/50 border border-card-border">
               <TabsTrigger 
                 value="chat" 
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow-purple"
