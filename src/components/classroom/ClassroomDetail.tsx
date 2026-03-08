@@ -7,6 +7,7 @@ import { ProgressGrid } from "./ProgressGrid"
 import { useCourses } from "@/hooks/useCourses"
 import { toast } from "sonner"
 import type { Classroom, ClassroomAssignment, ClassroomMember, MemberProgress } from "@/hooks/useClassrooms"
+import { ClassroomAnalytics } from "./ClassroomAnalytics"
 
 interface Props {
   classroom: Classroom
