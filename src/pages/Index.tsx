@@ -131,6 +131,13 @@ const Index = () => {
                 Academy
               </TabsTrigger>
               <TabsTrigger 
+                value="classroom"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow-purple"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Classroom
+              </TabsTrigger>
+              <TabsTrigger 
                 value="images"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow-purple"
               >
