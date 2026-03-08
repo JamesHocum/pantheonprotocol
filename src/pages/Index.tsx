@@ -214,6 +214,10 @@ const Index = () => {
                   </Tabs>
                 )}
               </TabsContent>
+
+              <TabsContent value="classroom" className="h-full mt-0 overflow-y-auto">
+                <ClassroomDashboard />
+              </TabsContent>
               
               <TabsContent value="images" className="h-full mt-0 overflow-y-auto">
                 <ImageGeneration />
