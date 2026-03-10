@@ -92,6 +92,18 @@
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Mobile: use scroll instead of fixed to avoid iOS rendering issues */
+  @media (max-width: 768px) {
+    body {
+      background-attachment: scroll;
+      background-size: cover;
+      background-position: center top;
+    }
   }
 }
 
