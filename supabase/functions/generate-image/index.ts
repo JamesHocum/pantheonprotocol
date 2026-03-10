@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 serve(async (req) => {
@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, style = 'cyberpunk' } = await req.json();
+    const { prompt, style = 'cyberpunk', sourceImage } = await req.json();
 
     if (!prompt) {
       return new Response(
@@ -25,7 +25,6 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // Style presets (LoRA-like modifications)
     const stylePrompts: Record<string, string> = {
       cyberpunk: 'cyberpunk style, neon lights, futuristic, dark atmosphere, high tech',
       anime: 'anime style, vibrant colors, dynamic composition, Japanese animation',
@@ -38,7 +37,20 @@ serve(async (req) => {
     const styleModifier = stylePrompts[style] || stylePrompts.cyberpunk;
     const enhancedPrompt = `${prompt}, ${styleModifier}`;
 
-    console.log('Generating image with prompt:', enhancedPrompt);
+    // Build messages based on whether we have a source image
+    let userContent: any;
+    if (sourceImage) {
+      // Image-to-image: send image + text prompt
+      console.log('Editing image with prompt:', enhancedPrompt);
+      userContent = [
+        { type: 'text', text: enhancedPrompt },
+        { type: 'image_url', image_url: { url: sourceImage } },
+      ];
+    } else {
+      // Text-to-image
+      console.log('Generating image with prompt:', enhancedPrompt);
+      userContent = enhancedPrompt;
+    }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -47,9 +59,9 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-image',
+        model: 'google/gemini-3.1-flash-image-preview',
         messages: [
-          { role: 'user', content: enhancedPrompt }
+          { role: 'user', content: userContent }
         ],
         modalities: ['image', 'text'],
       }),
@@ -89,7 +101,8 @@ serve(async (req) => {
         imageUrl, 
         prompt: enhancedPrompt,
         style,
-        description: textContent
+        description: textContent,
+        mode: sourceImage ? 'image-to-image' : 'text-to-image',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
