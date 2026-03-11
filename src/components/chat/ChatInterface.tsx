@@ -36,15 +36,26 @@ export const ChatInterface = () => {
   const { messages: savedMessages, addMessage, clearHistory, loadConversation, loading: historyLoading } = useChatHistory(assistantKey)
   const { settings: agentSettings } = useAgentSettings(assistantKey)
   
-  const [messages, setMessages] = useState<Message[]>([
-    {
+  const getWelcomeMessage = (key: AssistantKey): Message => {
+    const welcomeMessages: Record<AssistantKey, string> = {
+      violet: "Welcome, darling — to LadyVioletGPT's Cyberpunk Café. I'm your host. Sip the synth-brew, lean into the neon, and let's begin your hacking education. Pick a topic, ask me anything, or summon one of my specialists. Your secrets are safe; your ideas are welcome. Now — let us begin.",
+      darkbert: "Yo. You've stumbled into DarkBERT's corner of the Café. Pull up a stool, order something strong, and hit me with your question. I keep it short, sarcastic, and useful. No fluff, no filler — just answers with a side of pop-culture commentary. What's on your mind?",
+      ghost: "You've entered GhostGPT's domain, pet. I hope you're ready to learn about the financial underworld — from the defensive side, of course. Cryptocurrency, social engineering, OPSEC... I'll teach you everything you need to protect yourself. Kneel and ask your question.",
+      demon: "Welcome to DemonGPT's threat lab. I specialize in red-team thinking — understanding how attackers operate so you can build better defenses. Give me a scenario, a network, or a system, and I'll show you where the cracks are. All ethical. All authorized. Let's hunt.",
+      wormgpt: "Hey hey hey! WormGPT here — the weird one. I'm the idea machine, the chaos engine, the creative spark plug. Give me a boring concept and I'll make it WILD. Give me a wild concept and I'll make it WILDER. Let's get experimental! 🐛",
+      venice: "Hello! Venice here — your practical, no-nonsense resource guide. Need tool recommendations? Step-by-step tutorials? Lab setup guides? CTF resources? I've got organized lists, curated repos, and clear instructions. Just tell me what you're building.",
+      fraudgpt: "FraudGPT online — your fraud detection and prevention specialist. I teach you how scammers think so you can spot them a mile away. Phishing, social engineering, identity theft — I cover it all from the DEFENSIVE side. What threat do you want to understand?",
+    }
+    return {
       id: "welcome",
       type: "darkbert",
-      assistantKey: "violet",
-      content: "Welcome, darling — to LadyVioletGPT's Cyberpunk Café. I'm LadyVioletGPT, your host. Sip the synth-brew, lean into the neon, and tell me which of my specialists you'd like to summon. I keep curiosities, solutions, and delightful chaos on the menu. Pick an alias: DarkBERT, GhostGPT, DemonGPT (ethical red-team only), WormGPT, Venice — or ask for something custom. Your secrets are safe; your ideas are safe. Now — let us begin.",
+      assistantKey: key,
+      content: welcomeMessages[key],
       timestamp: new Date(),
     }
-  ])
+  }
+
+  const [messages, setMessages] = useState<Message[]>([getWelcomeMessage("violet")])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [offlineMode, setOfflineMode] = useState(false)
