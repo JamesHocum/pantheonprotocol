@@ -133,7 +133,11 @@ export const ImageGeneration = () => {
       }
     } catch (error: any) {
       console.error("Image generation error:", error)
-      toast({ title: "Generation failed", description: error.message || "Failed to generate image", variant: "destructive" })
+      const msg = error.message || "Failed to generate image"
+      const description = msg.includes("payload") || msg.includes("too large")
+        ? "Image may be too large. Try a smaller image."
+        : msg
+      toast({ title: "Generation failed", description, variant: "destructive" })
     } finally {
       setIsGenerating(false)
     }
