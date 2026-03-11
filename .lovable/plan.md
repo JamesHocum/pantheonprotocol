@@ -1,110 +1,34 @@
 
 
-## Team/Classroom Mode + Background Update
+## Plan: Verify and Harden Image-to-Image Flow
 
-### Part 1: Replace App Background Image
+### Current State
 
-Copy the uploaded image to `src/assets/` and update `src/index.css` to reference it instead of `cyber-cafe-bg.jpg`.
+The image-to-image flow is already implemented end-to-end:
+- **Frontend**: Mode selector, file upload with base64 conversion, preview, clear functionality
+- **Edge function**: Accepts `sourceImage` param, builds multimodal content array for `google/gemini-3.1-flash-image-preview`
+- **Style prompts**: All 6 styles are properly defined and appended
 
-**Files:**
-- Copy `user-uploads://ChatGPT_Image_Jan_13_2026_04_28_04_AM.png` to `src/assets/cyberpunk-cafe-bg.png`
-- Update `src/index.css` line 91: change `background-image` URL
+### Potential Issue
 
----
+Sending full base64 images via `supabase.functions.invoke` can fail silently if the payload exceeds the request body size limit (~6MB for edge functions). A 10MB upload limit on the client side means large images could exceed this.
 
-### Part 2: Database Schema for Classroom Mode
+### Plan
 
-Create migration with these tables:
+1. **Compress/resize source images client-side** before sending to the edge function
+   - Use an HTML Canvas to resize images to max 1024px on longest side before base64 encoding
+   - This keeps payloads well under limits while maintaining quality for AI transformation
 
-**`classrooms`** - Groups created by instructors
-- `id` uuid PK
-- `name` text
-- `description` text
-- `instructor_id` uuid (references profiles)
-- `invite_code` text unique (6-char alphanumeric for easy sharing)
-- `created_at`, `updated_at` timestamps
+2. **Add better error handling for large payloads**
+   - Catch and surface specific errors when the edge function rejects oversized requests
+   - Show a toast suggesting the user try a smaller image
 
-**`classroom_members`** - Students enrolled in classrooms
-- `id` uuid PK
-- `classroom_id` uuid FK -> classrooms
-- `user_id` uuid
-- `role` text default 'student' (student | assistant_instructor)
-- `joined_at` timestamp
+3. **Add a loading indicator on the source image preview** while the file is being read/processed
 
-**`classroom_assignments`** - Courses assigned to a classroom
-- `id` uuid PK
-- `classroom_id` uuid FK -> classrooms
-- `course_id` uuid FK -> training_courses
-- `assigned_at` timestamp
-- `due_date` timestamp nullable
+### Technical Details
 
-RLS policies:
-- Instructors can CRUD their own classrooms
-- Members can SELECT classrooms they belong to
-- Instructors can view all member progress in their classrooms
-- Students can join via invite code (insert into classroom_members)
-
----
-
-### Part 3: Classroom UI Components
-
-**Create `src/hooks/useClassrooms.ts`**
-- `fetchMyClassrooms()` - classrooms where user is instructor
-- `fetchEnrolledClassrooms()` - classrooms where user is student
-- `createClassroom(name, description)` - generates invite code
-- `joinClassroom(inviteCode)` - adds user as student member
-- `assignCourse(classroomId, courseId, dueDate?)` - instructor assigns course
-- `getClassroomProgress(classroomId)` - fetches all member progress for assigned courses
-
-**Create `src/components/classroom/ClassroomDashboard.tsx`**
-Main component that renders either the instructor or student view based on whether the user owns any classrooms.
-
-**Create `src/components/classroom/InstructorView.tsx`**
-- List of classrooms the user instructs
-- "Create Classroom" button with name/description form
-- Each classroom card shows: member count, assigned courses, invite code (copyable)
-- Click a classroom to see member progress grid
-
-**Create `src/components/classroom/StudentView.tsx`**
-- "Join Classroom" input field for invite code
-- List of enrolled classrooms with assigned courses and due dates
-- Progress indicators per assigned course
-
-**Create `src/components/classroom/ClassroomDetail.tsx`**
-- Instructor sees: member list with per-student progress bars, assign course dropdown, manage members
-- Student sees: assigned courses with their own progress, due dates
-
-**Create `src/components/classroom/ProgressGrid.tsx`**
-- Table/grid showing students as rows, assigned courses as columns
-- Cells show completion percentage with color coding (red < 25%, yellow < 75%, green >= 75%)
-
----
-
-### Part 4: Wire into Main App
-
-**Update `src/pages/Index.tsx`**
-- Add a 7th tab "Classroom" with `Users` icon between Academy and AI Studio
-- Tab renders `<ClassroomDashboard />`
-- Only visible when user is logged in
-
----
-
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `src/hooks/useClassrooms.ts` | Classroom CRUD and progress queries |
-| `src/components/classroom/ClassroomDashboard.tsx` | Main classroom tab container |
-| `src/components/classroom/InstructorView.tsx` | Instructor classroom management |
-| `src/components/classroom/StudentView.tsx` | Student enrollment and course view |
-| `src/components/classroom/ClassroomDetail.tsx` | Single classroom detail view |
-| `src/components/classroom/ProgressGrid.tsx` | Student progress table for instructors |
-
-### Files to Update
-| File | Changes |
-|------|---------|
-| `src/index.css` | New background image reference |
-| `src/pages/Index.tsx` | Add Classroom tab |
-
-### Database Migration
-- Create `classrooms`, `classroom_members`, `classroom_assignments` tables with RLS
+- Add a `resizeImage(base64: string, maxSize: number): Promise<string>` utility in `ImageGeneration.tsx`
+- Uses `HTMLCanvasElement` to draw and re-export the image at reduced resolution
+- Called in `handleFileUpload` after `FileReader` completes, before setting state
+- No new dependencies needed -- uses native browser Canvas API
 
