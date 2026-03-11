@@ -342,7 +342,11 @@ export const ChatInterface = () => {
       />
       
       {/* Mount Rushmore Selector */}
-      <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={setAssistantKey} />
+      <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={(key) => {
+        setAssistantKey(key)
+        // Reset to persona-specific welcome when switching
+        setMessages([getWelcomeMessage(key)])
+      }} />
       
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
