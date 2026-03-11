@@ -30,9 +30,13 @@ const categoryIcons: Record<string, React.ReactNode> = {
   research: <Shield className="h-4 w-4" />,
 };
 
-export const HackerNewsFeed = () => {
+interface HackerNewsFeedProps {
+  embedded?: boolean
+}
+
+export const HackerNewsFeed = ({ embedded = false }: HackerNewsFeedProps) => {
   const { toast } = useToast();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(embedded);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("all");
