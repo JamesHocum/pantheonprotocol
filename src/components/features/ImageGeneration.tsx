@@ -218,6 +218,11 @@ export const ImageGeneration = () => {
                     <X className="h-3 w-3" />
                   </button>
                 </div>
+              ) : isProcessingImage ? (
+                <div className="border-2 border-dashed border-primary/40 rounded-lg p-8 text-center">
+                  <Settings className="h-8 w-8 mx-auto mb-2 text-primary animate-spin" />
+                  <p className="text-sm text-muted-foreground font-mono">Processing image...</p>
+                </div>
               ) : (
                 <div
                   onClick={() => fileInputRef.current?.click()}
@@ -225,7 +230,7 @@ export const ImageGeneration = () => {
                 >
                   <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground font-mono">Click to upload an image</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">PNG, JPG up to 10MB</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">PNG, JPG up to 10MB · Auto-resized for optimal results</p>
                 </div>
               )}
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
