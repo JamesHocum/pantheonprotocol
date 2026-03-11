@@ -13,6 +13,31 @@ import { useImageGallery, GeneratedImage } from "@/hooks/useImageGallery"
 
 type GenerationMode = "text-to-image" | "image-to-image" | "image-to-video"
 
+const resizeImage = (base64: string, maxSize = 1024): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      let { width, height } = img
+      if (width <= maxSize && height <= maxSize) {
+        resolve(base64)
+        return
+      }
+      const scale = maxSize / Math.max(width, height)
+      width = Math.round(width * scale)
+      height = Math.round(height * scale)
+      const canvas = document.createElement("canvas")
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext("2d")
+      if (!ctx) { reject(new Error("Canvas not supported")); return }
+      ctx.drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL("image/jpeg", 0.85))
+    }
+    img.onerror = () => reject(new Error("Failed to load image"))
+    img.src = base64
+  })
+}
+
 export const ImageGeneration = () => {
   const { toast } = useToast()
   const { user } = useAuth()
@@ -23,13 +48,14 @@ export const ImageGeneration = () => {
   const [selectedStyle, setSelectedStyle] = useState("cyberpunk")
   const [mode, setMode] = useState<GenerationMode>("text-to-image")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isProcessingImage, setIsProcessingImage] = useState(false)
   const [sessionImages, setSessionImages] = useState<GeneratedImage[]>([])
   const [sourceImage, setSourceImage] = useState<string | null>(null)
   const [sourcePreview, setSourcePreview] = useState<string | null>(null)
 
   const allImages = user ? savedImages : sessionImages
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith("image/")) {
@@ -40,12 +66,24 @@ export const ImageGeneration = () => {
       toast({ title: "Image must be under 10MB", variant: "destructive" })
       return
     }
+    setIsProcessingImage(true)
     const reader = new FileReader()
-    reader.onload = () => {
-      const base64 = reader.result as string
-      setSourceImage(base64)
-      setSourcePreview(base64)
-      if (mode === "text-to-image") setMode("image-to-image")
+    reader.onload = async () => {
+      try {
+        const base64 = reader.result as string
+        setSourcePreview(base64)
+        const resized = await resizeImage(base64, 1024)
+        setSourceImage(resized)
+        if (mode === "text-to-image") setMode("image-to-image")
+      } catch {
+        toast({ title: "Failed to process image", variant: "destructive" })
+      } finally {
+        setIsProcessingImage(false)
+      }
+    }
+    reader.onerror = () => {
+      setIsProcessingImage(false)
+      toast({ title: "Failed to read image file", variant: "destructive" })
     }
     reader.readAsDataURL(file)
   }
@@ -95,7 +133,11 @@ export const ImageGeneration = () => {
       }
     } catch (error: any) {
       console.error("Image generation error:", error)
-      toast({ title: "Generation failed", description: error.message || "Failed to generate image", variant: "destructive" })
+      const msg = error.message || "Failed to generate image"
+      const description = msg.includes("payload") || msg.includes("too large")
+        ? "Image may be too large. Try a smaller image."
+        : msg
+      toast({ title: "Generation failed", description, variant: "destructive" })
     } finally {
       setIsGenerating(false)
     }
@@ -176,6 +218,11 @@ export const ImageGeneration = () => {
                     <X className="h-3 w-3" />
                   </button>
                 </div>
+              ) : isProcessingImage ? (
+                <div className="border-2 border-dashed border-primary/40 rounded-lg p-8 text-center">
+                  <Settings className="h-8 w-8 mx-auto mb-2 text-primary animate-spin" />
+                  <p className="text-sm text-muted-foreground font-mono">Processing image...</p>
+                </div>
               ) : (
                 <div
                   onClick={() => fileInputRef.current?.click()}
@@ -183,7 +230,7 @@ export const ImageGeneration = () => {
                 >
                   <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground font-mono">Click to upload an image</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">PNG, JPG up to 10MB</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">PNG, JPG up to 10MB · Auto-resized for optimal results</p>
                 </div>
               )}
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
