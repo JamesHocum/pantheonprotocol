@@ -7,6 +7,7 @@
   "background_color": "#0a0a0a",
   "theme_color": "#8b5cf6",
   "orientation": "portrait-primary",
+  "id": "/",
   "icons": [
     {
       "src": "favicon.ico",
@@ -47,7 +48,7 @@
       "src": "lady-violet-icon.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
-      "purpose": "maskable"
+      "purpose": "any"
     },
     {
       "src": "lady-violet-icon.jpg",
@@ -60,6 +61,12 @@
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any"
+    },
+    {
+      "src": "lady-violet-icon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "maskable"
     }
   ],
   "categories": ["productivity", "utilities", "education", "games"],
@@ -94,14 +101,5 @@
       "form_factor": "wide"
     }
   ],
-  "share_target": {
-    "action": "/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  }
+  "prefer_related_applications": false
 }

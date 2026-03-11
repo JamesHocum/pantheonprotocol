@@ -30,9 +30,13 @@ const categoryIcons: Record<string, React.ReactNode> = {
   research: <Shield className="h-4 w-4" />,
 };
 
-export const HackerNewsFeed = () => {
+interface HackerNewsFeedProps {
+  embedded?: boolean
+}
+
+export const HackerNewsFeed = ({ embedded = false }: HackerNewsFeedProps) => {
   const { toast } = useToast();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(embedded);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("all");
@@ -68,15 +72,77 @@ export const HackerNewsFeed = () => {
 
   const categories = ["all", "vulnerabilities", "breaches", "tools", "research"];
 
+  // Auto-fetch when embedded
+  useState(() => { if (embedded && news.length === 0) fetchNews() });
+
+  if (embedded) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Newspaper className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-bold text-primary neon-text">HACKER NEWS FEED</h2>
+          </div>
+          <p className="text-muted-foreground font-mono text-sm">Security intelligence from the cyber underground</p>
+        </div>
+
+        {/* Category filters */}
+        <div className="flex gap-2 flex-wrap justify-center">
+          {categories.map((cat) => (
+            <Badge
+              key={cat}
+              variant={category === cat ? "default" : "outline"}
+              className="cursor-pointer text-xs capitalize"
+              onClick={() => handleCategoryChange(cat)}
+            >
+              {cat}
+            </Badge>
+          ))}
+          <Button variant="ghost" size="sm" onClick={() => fetchNews()} disabled={loading} className="h-6">
+            <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
+          </Button>
+        </div>
+
+        {/* News grid */}
+        <ScrollArea className="h-[calc(100vh-400px)]">
+          {loading && news.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
+              <p className="text-sm font-mono">Fetching intel...</p>
+            </div>
+          ) : news.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <Newspaper className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-mono">Click refresh to load news</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-2">
+              {news.map((item, idx) => (
+                <div key={idx} className="p-4 rounded-lg bg-card/50 border border-border/30 hover:border-primary/30 transition-colors">
+                  <div className="flex items-start gap-2 mb-2">
+                    <div className="mt-0.5">{categoryIcons[item.category?.toLowerCase()] || <Newspaper className="h-4 w-4" />}</div>
+                    <h4 className="text-sm font-semibold leading-tight flex-1">{item.headline}</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">{item.summary}</p>
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className={cn("text-xs", severityColors[item.severity] || severityColors.medium)}>{item.severity}</Badge>
+                    <span className="text-xs text-muted-foreground">{item.source}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </div>
+    )
+  }
+
   return (
     <div className="fixed bottom-4 right-4 z-40">
       {/* Collapsed state - floating button */}
       {!isExpanded && (
         <Button
-          onClick={() => {
-            setIsExpanded(true);
-            if (news.length === 0) fetchNews();
-          }}
+          onClick={() => { setIsExpanded(true); if (news.length === 0) fetchNews() }}
           className="rounded-full h-12 w-12 bg-primary/20 backdrop-blur border border-primary/50 hover:bg-primary/30 shadow-lg shadow-primary/20"
         >
           <Newspaper className="h-5 w-5 text-primary" />
