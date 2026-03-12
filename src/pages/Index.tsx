@@ -175,7 +175,10 @@ const Index = () => {
               </TabsContent>
               
               <TabsContent value="avatar" className="h-full mt-0 overflow-y-auto">
-                <div className="max-w-md mx-auto"><UserAvatar /></div>
+                <div className="max-w-md mx-auto space-y-6">
+                  <UserAvatar />
+                  <UnlockableAvatars />
+                </div>
               </TabsContent>
               
               <TabsContent value="settings" className="h-full mt-0 overflow-y-auto">
