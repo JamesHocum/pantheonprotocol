@@ -1,110 +1,100 @@
 
 
-## Team/Classroom Mode + Background Update
+## Audit of Previous Updates + New Features Plan
 
-### Part 1: Replace App Background Image
+### Previous Updates Status
 
-Copy the uploaded image to `src/assets/` and update `src/index.css` to reference it instead of `cyber-cafe-bg.jpg`.
+All previous changes completed successfully:
+- **AI Studio**: Presets tab (10 presets), Modifiers tab (10 categories with dropdowns, random buttons) -- fully implemented
+- **Drag-and-drop upload**: Working with `onDragOver/onDragLeave/onDrop` handlers and `processFile` callback
+- **Gallery as source**: "Use as source" button on gallery images calls `useGalleryAsSource`
+- **Persona welcome messages**: `getWelcomeMessage()` returns unique text per persona, resets on switch
+- **Conversation starters**: Each persona has unique starters that render correctly
+- **News/Games tabs**: Both added to the 9-tab layout with `HackerNewsFeed` and `GameLauncher`
+- **Image compression**: `resizeImage` utility caps at 1024px via Canvas API
+- **Edge function**: Supports both text-to-image and image-to-image via `sourceImage` param
 
-**Files:**
-- Copy `user-uploads://ChatGPT_Image_Jan_13_2026_04_28_04_AM.png` to `src/assets/cyberpunk-cafe-bg.png`
-- Update `src/index.css` line 91: change `background-image` URL
-
----
-
-### Part 2: Database Schema for Classroom Mode
-
-Create migration with these tables:
-
-**`classrooms`** - Groups created by instructors
-- `id` uuid PK
-- `name` text
-- `description` text
-- `instructor_id` uuid (references profiles)
-- `invite_code` text unique (6-char alphanumeric for easy sharing)
-- `created_at`, `updated_at` timestamps
-
-**`classroom_members`** - Students enrolled in classrooms
-- `id` uuid PK
-- `classroom_id` uuid FK -> classrooms
-- `user_id` uuid
-- `role` text default 'student' (student | assistant_instructor)
-- `joined_at` timestamp
-
-**`classroom_assignments`** - Courses assigned to a classroom
-- `id` uuid PK
-- `classroom_id` uuid FK -> classrooms
-- `course_id` uuid FK -> training_courses
-- `assigned_at` timestamp
-- `due_date` timestamp nullable
-
-RLS policies:
-- Instructors can CRUD their own classrooms
-- Members can SELECT classrooms they belong to
-- Instructors can view all member progress in their classrooms
-- Students can join via invite code (insert into classroom_members)
+**No incomplete work detected.**
 
 ---
 
-### Part 3: Classroom UI Components
+### New Features Plan
 
-**Create `src/hooks/useClassrooms.ts`**
-- `fetchMyClassrooms()` - classrooms where user is instructor
-- `fetchEnrolledClassrooms()` - classrooms where user is student
-- `createClassroom(name, description)` - generates invite code
-- `joinClassroom(inviteCode)` - adds user as student member
-- `assignCourse(classroomId, courseId, dueDate?)` - instructor assigns course
-- `getClassroomProgress(classroomId)` - fetches all member progress for assigned courses
+#### 1. Themed Chat Room Backgrounds per AI Persona
 
-**Create `src/components/classroom/ClassroomDashboard.tsx`**
-Main component that renders either the instructor or student view based on whether the user owns any classrooms.
+Add persona-specific background gradients/colors to the chat area in `ChatInterface.tsx`.
 
-**Create `src/components/classroom/InstructorView.tsx`**
-- List of classrooms the user instructs
-- "Create Classroom" button with name/description form
-- Each classroom card shows: member count, assigned courses, invite code (copyable)
-- Click a classroom to see member progress grid
+- Define a `chatRoomThemes` map keyed by `AssistantKey` with gradient strings:
+  - `violet`: purple haze (`from-purple-950/30 via-fuchsia-950/20 to-background`)
+  - `darkbert`: deep blue (`from-indigo-950/30 via-blue-950/20 to-background`)
+  - `ghost`: cyan terminal (`from-cyan-950/30 via-teal-950/20 to-background`)
+  - `demon`: red glow (`from-red-950/30 via-rose-950/20 to-background`)
+  - `wormgpt`: toxic green (`from-green-950/30 via-lime-950/20 to-background`)
+  - `venice`: warm orange (`from-orange-950/30 via-amber-950/20 to-background`)
+  - `fraudgpt`: crimson (`from-red-950/30 via-pink-950/20 to-background`)
+- Apply as a `className` on the chat messages scroll container, plus a subtle top border glow using the persona's `avatarColor`.
 
-**Create `src/components/classroom/StudentView.tsx`**
-- "Join Classroom" input field for invite code
-- List of enrolled classrooms with assigned courses and due dates
-- Progress indicators per assigned course
+#### 2. Unlockable Avatar Skins per AI Persona
 
-**Create `src/components/classroom/ClassroomDetail.tsx`**
-- Instructor sees: member list with per-student progress bars, assign course dropdown, manage members
-- Student sees: assigned courses with their own progress, due dates
+Add a system where users unlock alternate avatar appearances for each AI based on XP milestones.
 
-**Create `src/components/classroom/ProgressGrid.tsx`**
-- Table/grid showing students as rows, assigned courses as columns
-- Cells show completion percentage with color coding (red < 25%, yellow < 75%, green >= 75%)
+- **Data model**: Add to `BADGE_DEFINITIONS` in `useXP.ts` new badges that unlock avatar skins (e.g., "Violet Ascended" at level 10 unlocks golden Violet avatar, "DarkBERT Elite" at level 15, etc.)
+- **New component** `src/components/features/UnlockableAvatars.tsx`:
+  - Shows all 7 AI personas with their base avatar and 1-2 locked/unlocked alternate skins
+  - Locked skins show a lock icon + XP requirement
+  - Unlocked skins can be selected, stored in `user_agent_settings.custom_avatar_url` or a new field
+- **Skin definitions**: Each persona gets 2-3 SVG avatar variants (e.g., "Neon", "Holographic", "Shadow") stored as components in `AIAvatars.tsx`
+- **Integration**: The `AIAvatar` component checks if user has an unlocked skin selected and renders accordingly
+- Accessible from the Profile tab or a new "Skins" section
 
----
+#### 3. First Playable Hacker Mini-Game: CIPHER_BREAK
 
-### Part 4: Wire into Main App
+Build a terminal-based password cracking puzzle in `src/components/games/CipherBreak.tsx`.
 
-**Update `src/pages/Index.tsx`**
-- Add a 7th tab "Classroom" with `Users` icon between Academy and AI Studio
-- Tab renders `<ClassroomDashboard />`
-- Only visible when user is logged in
+**Gameplay**:
+- Player sees a "target system" with a scrambled password (e.g., 6-8 chars)
+- Timer counts down from 60 seconds
+- Player types guesses; after each guess they get feedback: correct chars in correct positions (green), correct chars wrong position (yellow), wrong chars (red) -- Wordle-style but with all printable chars
+- Difficulty levels: Easy (4 chars, alphanumeric), Medium (6 chars), Hard (8 chars with symbols)
+- Score = base points for solving + time bonus + streak multiplier
 
----
+**Technical**:
+- Pure React component with `useState`/`useEffect` for timer
+- Password generated randomly from character sets per difficulty
+- Terminal-aesthetic UI: monospace font, green-on-black, scanline effect, blinking cursor
+- XP integration: Award XP on completion via `useXP().addXP()`
+- High scores stored in localStorage (or `user_xp` badges for milestones)
+- Update `GameLauncher.tsx` to make CIPHER_BREAK's "LAUNCH" button navigate to the game instead of showing "coming soon"
 
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `src/hooks/useClassrooms.ts` | Classroom CRUD and progress queries |
-| `src/components/classroom/ClassroomDashboard.tsx` | Main classroom tab container |
-| `src/components/classroom/InstructorView.tsx` | Instructor classroom management |
-| `src/components/classroom/StudentView.tsx` | Student enrollment and course view |
-| `src/components/classroom/ClassroomDetail.tsx` | Single classroom detail view |
-| `src/components/classroom/ProgressGrid.tsx` | Student progress table for instructors |
+**UI Layout**:
+```text
+┌─────────────────────────────────┐
+│  CIPHER_BREAK v1.0   ⏱ 00:45   │
+│  Level: MEDIUM  Score: 1250     │
+├─────────────────────────────────┤
+│  TARGET: ██████                 │
+│                                 │
+│  > h4ck3r  → 🟢🔴🟡🔴🟢🔴    │
+│  > p4ss0r  → 🔴🟡🟢🟢🔴🟢    │
+│  > _                            │
+│                                 │
+├─────────────────────────────────┤
+│  [EASY] [MEDIUM] [HARD]        │
+│  Streak: 3x  Best: 2400        │
+└─────────────────────────────────┘
+```
 
-### Files to Update
-| File | Changes |
-|------|---------|
-| `src/index.css` | New background image reference |
-| `src/pages/Index.tsx` | Add Classroom tab |
+#### 4. Summary of Files to Create/Edit
 
-### Database Migration
-- Create `classrooms`, `classroom_members`, `classroom_assignments` tables with RLS
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/components/chat/ChatInterface.tsx` | Edit | Add themed background per persona |
+| `src/components/chat/AIAvatars.tsx` | Edit | Add alternate skin variants |
+| `src/components/features/UnlockableAvatars.tsx` | Create | Avatar skin selection UI |
+| `src/components/games/CipherBreak.tsx` | Create | Password cracking mini-game |
+| `src/components/features/GameLauncher.tsx` | Edit | Wire CIPHER_BREAK launch button |
+| `src/hooks/useXP.ts` | Edit | Add avatar-unlock badges |
+| `src/pages/Index.tsx` | Edit | Minor routing for game component |
+
+No database changes needed -- avatar skins use existing `user_agent_settings` table and XP badges use existing `user_xp` JSONB field.
 
