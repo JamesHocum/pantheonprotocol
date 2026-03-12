@@ -1,18 +1,29 @@
+import { useState } from "react"
 import { Gamepad2, Terminal, Binary, Cpu, Lock, Wifi, Skull, Globe } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { CipherBreak } from "@/components/games/CipherBreak"
 import { toast } from "sonner"
 
 const games = [
+  {
+    name: "CIPHER_BREAK",
+    icon: Lock,
+    description: "Decode encrypted passwords against the clock. Wordle meets hacking — crack the code before time runs out.",
+    genre: "Puzzle / Educational",
+    inspired: "The Imitation Game",
+    color: "#39ff14",
+    status: "playable" as const,
+  },
   {
     name: "HACK_THE_PLANET",
     icon: Terminal,
     description: "Classic terminal hacking simulator. Crack passwords, bypass firewalls, and infiltrate corporate mainframes.",
     genre: "Puzzle / Simulation",
     inspired: "Hackers (1995)",
-    color: "#39ff14",
+    color: "#00fff7",
     status: "coming_soon" as const,
   },
   {
@@ -21,15 +32,6 @@ const games = [
     description: "Navigate the cyberspace matrix as a console cowboy. Jack in, steal data, dodge ICE.",
     genre: "Adventure / RPG",
     inspired: "Neuromancer (1988)",
-    color: "#00fff7",
-    status: "coming_soon" as const,
-  },
-  {
-    name: "CIPHER_BREAK",
-    icon: Lock,
-    description: "Decode encrypted messages against the clock. Frequency analysis, Caesar shifts, and RSA challenges.",
-    genre: "Puzzle / Educational",
-    inspired: "The Imitation Game",
     color: "#ff00cc",
     status: "coming_soon" as const,
   },
@@ -63,6 +65,12 @@ const games = [
 ]
 
 export const GameLauncher = () => {
+  const [activeGame, setActiveGame] = useState<string | null>(null)
+
+  if (activeGame === "CIPHER_BREAK") {
+    return <CipherBreak onBack={() => setActiveGame(null)} />
+  }
+
   return (
     <div className="space-y-4">
       <div className="text-center">
@@ -91,8 +99,8 @@ export const GameLauncher = () => {
                     <div className="p-2 rounded-lg border border-border/30" style={{ borderColor: `${game.color}40` }}>
                       <Icon className="h-6 w-6" style={{ color: game.color }} />
                     </div>
-                    <Badge variant="outline" className="text-xs font-mono border-secondary/50 text-secondary">
-                      COMING SOON
+                    <Badge variant="outline" className={`text-xs font-mono ${game.status === "playable" ? "border-green-400/50 text-green-400" : "border-secondary/50 text-secondary"}`}>
+                      {game.status === "playable" ? "▶ PLAY NOW" : "COMING SOON"}
                     </Badge>
                   </div>
                   
@@ -109,13 +117,19 @@ export const GameLauncher = () => {
                   </div>
                   
                   <CyberpunkButton
-                    variant="ghost"
+                    variant={game.status === "playable" ? "neon" : "ghost"}
                     size="sm"
                     className="w-full mt-3 text-xs"
-                    onClick={() => toast.info(`${game.name} is under development. Stay tuned!`)}
+                    onClick={() => {
+                      if (game.status === "playable") {
+                        setActiveGame(game.name)
+                      } else {
+                        toast.info(`${game.name} is under development. Stay tuned!`)
+                      }
+                    }}
                   >
                     <Binary className="h-3 w-3 mr-1" />
-                    LAUNCH
+                    {game.status === "playable" ? "LAUNCH" : "COMING SOON"}
                   </CyberpunkButton>
                 </div>
               </Card>
