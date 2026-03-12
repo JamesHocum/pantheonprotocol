@@ -9,6 +9,7 @@ import { VoiceAssistant } from "@/components/features/VoiceAssistant"
 import { ClassroomDashboard } from "@/components/classroom/ClassroomDashboard"
 import { HackerNewsFeed } from "@/components/features/HackerNewsFeed"
 import { GameLauncher } from "@/components/features/GameLauncher"
+import { UnlockableAvatars } from "@/components/features/UnlockableAvatars"
 import { XPDisplay } from "@/components/features/XPDisplay"
 import { InstallPrompt } from "@/components/ui/install-prompt"
 import { PWAInstallBanner } from "@/components/ui/pwa-install-banner"
@@ -174,7 +175,10 @@ const Index = () => {
               </TabsContent>
               
               <TabsContent value="avatar" className="h-full mt-0 overflow-y-auto">
-                <div className="max-w-md mx-auto"><UserAvatar /></div>
+                <div className="max-w-md mx-auto space-y-6">
+                  <UserAvatar />
+                  <UnlockableAvatars />
+                </div>
               </TabsContent>
               
               <TabsContent value="settings" className="h-full mt-0 overflow-y-auto">

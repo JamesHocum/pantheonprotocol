@@ -55,6 +55,26 @@ export const ChatInterface = () => {
     }
   }
 
+  const chatRoomThemes: Record<AssistantKey, string> = {
+    violet: "bg-gradient-to-b from-purple-950/30 via-fuchsia-950/20 to-transparent",
+    darkbert: "bg-gradient-to-b from-indigo-950/30 via-blue-950/20 to-transparent",
+    ghost: "bg-gradient-to-b from-cyan-950/30 via-teal-950/20 to-transparent",
+    demon: "bg-gradient-to-b from-red-950/30 via-rose-950/20 to-transparent",
+    wormgpt: "bg-gradient-to-b from-green-950/30 via-lime-950/20 to-transparent",
+    venice: "bg-gradient-to-b from-orange-950/30 via-amber-950/20 to-transparent",
+    fraudgpt: "bg-gradient-to-b from-red-950/30 via-pink-950/20 to-transparent",
+  }
+
+  const chatRoomBorders: Record<AssistantKey, string> = {
+    violet: "border-t-purple-500/30",
+    darkbert: "border-t-blue-500/30",
+    ghost: "border-t-cyan-500/30",
+    demon: "border-t-red-500/30",
+    wormgpt: "border-t-green-500/30",
+    venice: "border-t-orange-500/30",
+    fraudgpt: "border-t-pink-500/30",
+  }
+
   const [messages, setMessages] = useState<Message[]>([getWelcomeMessage("violet")])
   const [inputMessage, setInputMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
@@ -349,7 +369,7 @@ export const ChatInterface = () => {
       }} />
       
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className={`flex-1 overflow-y-auto p-4 space-y-4 border-t-2 transition-all duration-500 ${chatRoomThemes[assistantKey]} ${chatRoomBorders[assistantKey]}`}>
         {messages.map((message) => (
           <div
             key={message.id}

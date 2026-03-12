@@ -80,6 +80,24 @@ const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'earnedAt'>> = {
     description: 'Reach level 25',
     icon: '👑',
   },
+  violet_ascended: {
+    id: 'violet_ascended',
+    name: 'Violet Ascended',
+    description: 'Reach level 15 to unlock holographic Violet skin',
+    icon: '💜',
+  },
+  darkbert_elite: {
+    id: 'darkbert_elite',
+    name: 'DarkBERT Elite',
+    description: 'Reach level 15 to unlock holographic DarkBERT skin',
+    icon: '🔮',
+  },
+  cipher_master: {
+    id: 'cipher_master',
+    name: 'Cipher Master',
+    description: 'Win 5 rounds of CIPHER_BREAK',
+    icon: '🔓',
+  },
 };
 
 // XP amounts by difficulty
