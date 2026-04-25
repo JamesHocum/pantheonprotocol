@@ -30,9 +30,36 @@ interface Message {
   isWebSearch?: boolean
 }
 
-export const ChatInterface = () => {
+interface ChatInterfaceProps {
+  /** Compact mode: tighter padding, no built-in MountRushmore selector */
+  compact?: boolean
+  /** Externally-controlled active assistant */
+  activeAssistant?: AssistantKey
+  /** Notify parent when the user picks a different assistant */
+  onAssistantChange?: (key: AssistantKey) => void
+  /** Hide the built-in MountRushmore selector */
+  hideSelector?: boolean
+  /** Prompt to inject into the input from outside (e.g. from QuickActions) */
+  pendingPrompt?: string
+  /** Called once the pendingPrompt has been consumed */
+  onPromptConsumed?: () => void
+}
+
+export const ChatInterface = ({
+  compact = false,
+  activeAssistant,
+  onAssistantChange,
+  hideSelector = false,
+  pendingPrompt,
+  onPromptConsumed,
+}: ChatInterfaceProps = {}) => {
   const { user, profile } = useAuth()
-  const [assistantKey, setAssistantKey] = useState<AssistantKey>("violet")
+  const [internalKey, setInternalKey] = useState<AssistantKey>("violet")
+  const assistantKey = activeAssistant ?? internalKey
+  const setAssistantKey = (key: AssistantKey) => {
+    if (onAssistantChange) onAssistantChange(key)
+    else setInternalKey(key)
+  }
   const { messages: savedMessages, addMessage, clearHistory, loadConversation, loading: historyLoading } = useChatHistory(assistantKey)
   const { settings: agentSettings } = useAgentSettings(assistantKey)
   
