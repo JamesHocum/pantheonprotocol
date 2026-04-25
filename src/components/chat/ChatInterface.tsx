@@ -135,6 +135,23 @@ export const ChatInterface = ({
     scrollToBottom()
   }, [messages])
 
+  // Reset welcome when externally controlled assistant changes
+  useEffect(() => {
+    if (activeAssistant) {
+      setMessages([getWelcomeMessage(activeAssistant)])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAssistant])
+
+  // Consume externally injected prompt
+  useEffect(() => {
+    if (pendingPrompt && pendingPrompt.trim()) {
+      setInputMessage(pendingPrompt)
+      onPromptConsumed?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPrompt])
+
   const handleDownloadModel = async () => {
     try {
       setIsTyping(true)
