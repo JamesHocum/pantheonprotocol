@@ -405,13 +405,14 @@ export const ChatInterface = ({
         onNewConversation={handleClearHistory}
       />
       
-      {/* Mount Rushmore Selector */}
-      <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={(key) => {
-        setAssistantKey(key)
-        // Reset to persona-specific welcome when switching
-        setMessages([getWelcomeMessage(key)])
-      }} />
-      
+      {/* Mount Rushmore Selector — hidden in compact/dashboard mode */}
+      {!hideSelector && (
+        <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={(key) => {
+          setAssistantKey(key)
+          // Reset to persona-specific welcome when switching
+          setMessages([getWelcomeMessage(key)])
+        }} />
+      )}
       {/* Chat Messages */}
       <div className={`flex-1 overflow-y-auto p-4 space-y-4 border-t-2 transition-all duration-500 ${chatRoomThemes[assistantKey]} ${chatRoomBorders[assistantKey]}`}>
         {messages.map((message) => (
