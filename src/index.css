@@ -2,151 +2,265 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Cyberpunk DarkBERT Design System - Purple/Green Neon Aesthetic */
+/* ============================================================
+   PANTHEON PROTOCOL — Premium Holographic Cyberpunk System
+   ============================================================ */
 
 @layer base {
   :root {
-    /* Core Cyberpunk Colors */
-    --background: 240 8% 8%;
-    --foreground: 280 100% 90%;
+    /* Core */
+    --background: 240 15% 5%;
+    --foreground: 280 100% 92%;
 
-    /* Neon Purple Primary */
+    /* Neon palette */
+    --neon-violet: 280 100% 70%;
+    --neon-magenta: 320 100% 65%;
+    --neon-cyan: 180 100% 55%;
+    --neon-green: 140 100% 55%;
+    --neon-amber: 35 100% 60%;
+
+    /* Primary / secondary aliases for shadcn components */
     --primary: 280 100% 70%;
-    --primary-foreground: 240 8% 8%;
+    --primary-foreground: 240 15% 5%;
     --primary-glow: 280 100% 80%;
-    
-    /* Neon Green Secondary */
-    --secondary: 120 100% 50%;
-    --secondary-foreground: 240 8% 8%;
-    --secondary-glow: 120 100% 60%;
 
-    /* Dark Interface Elements */
-    --card: 240 10% 12%;
-    --card-foreground: 280 100% 90%;
-    --card-border: 280 60% 30%;
+    --secondary: 180 100% 55%;
+    --secondary-foreground: 240 15% 5%;
+    --secondary-glow: 180 100% 65%;
 
-    --popover: 240 10% 10%;
-    --popover-foreground: 280 100% 90%;
+    /* Surfaces */
+    --card: 240 18% 8%;
+    --card-foreground: 280 100% 92%;
+    --card-border: 280 50% 25%;
 
-    /* Muted Dark Elements */
-    --muted: 240 8% 15%;
-    --muted-foreground: 280 30% 70%;
+    --popover: 240 18% 7%;
+    --popover-foreground: 280 100% 92%;
 
-    /* Accent Neon */
-    --accent: 280 100% 60%;
-    --accent-foreground: 240 8% 8%;
+    --muted: 240 12% 12%;
+    --muted-foreground: 280 25% 70%;
 
-    /* Destructive Red with Neon Glow */
-    --destructive: 0 100% 60%;
-    --destructive-foreground: 240 8% 8%;
+    --accent: 320 100% 65%;
+    --accent-foreground: 240 15% 5%;
 
-    /* Borders and Inputs */
-    --border: 280 40% 25%;
-    --input: 240 10% 15%;
-    --input-border: 280 60% 40%;
+    --destructive: 0 100% 62%;
+    --destructive-foreground: 240 15% 5%;
+
+    --border: 280 35% 20%;
+    --input: 240 14% 11%;
+    --input-border: 280 50% 35%;
     --ring: 280 100% 70%;
 
     /* Gradients */
-    --gradient-cyberpunk: linear-gradient(135deg, hsl(280 100% 70%), hsl(120 100% 50%));
-    --gradient-dark: linear-gradient(180deg, hsl(240 10% 12%), hsl(240 8% 8%));
-    --gradient-neon: linear-gradient(90deg, hsl(280 100% 70% / 0.3), hsl(120 100% 50% / 0.3));
+    --gradient-cyberpunk: linear-gradient(135deg, hsl(280 100% 70%), hsl(320 100% 65%), hsl(180 100% 55%));
+    --gradient-dark: linear-gradient(180deg, hsl(240 18% 9%), hsl(240 15% 5%));
+    --gradient-neon: linear-gradient(90deg, hsl(280 100% 70% / 0.3), hsl(180 100% 55% / 0.3));
+    --gradient-holo: conic-gradient(from 180deg at 50% 50%, hsl(280 100% 70%), hsl(320 100% 65%), hsl(180 100% 55%), hsl(140 100% 55%), hsl(280 100% 70%));
+    --gradient-card-edge: linear-gradient(90deg, transparent, hsl(280 100% 70% / 0.6), hsl(320 100% 65% / 0.6), hsl(180 100% 55% / 0.6), transparent);
 
-    /* Glows and Effects */
-    --glow-purple: 0 0 20px hsl(280 100% 70% / 0.5);
-    --glow-green: 0 0 20px hsl(120 100% 50% / 0.5);
-    --glow-cyber: 0 0 30px hsl(280 100% 70% / 0.4), 0 0 60px hsl(120 100% 50% / 0.2);
+    /* Neon Intensity (controlled by JS, 0–1) */
+    --neon-intensity: 0.6;
 
-    --radius: 0.8rem;
+    /* Glows — multiplied by intensity */
+    --glow-purple: 0 0 calc(20px * var(--neon-intensity)) hsl(280 100% 70% / calc(0.6 * var(--neon-intensity)));
+    --glow-green: 0 0 calc(20px * var(--neon-intensity)) hsl(140 100% 55% / calc(0.6 * var(--neon-intensity)));
+    --glow-cyan: 0 0 calc(20px * var(--neon-intensity)) hsl(180 100% 55% / calc(0.6 * var(--neon-intensity)));
+    --glow-magenta: 0 0 calc(20px * var(--neon-intensity)) hsl(320 100% 65% / calc(0.6 * var(--neon-intensity)));
+    --glow-cyber: 0 0 calc(30px * var(--neon-intensity)) hsl(280 100% 70% / calc(0.45 * var(--neon-intensity))), 0 0 calc(60px * var(--neon-intensity)) hsl(180 100% 55% / calc(0.25 * var(--neon-intensity)));
 
-    --sidebar-background: 0 0% 98%;
+    --radius: 0.85rem;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar (premium dark) */
+    --sidebar-background: 240 18% 6%;
+    --sidebar-foreground: 280 30% 80%;
+    --sidebar-primary: 280 100% 70%;
+    --sidebar-primary-foreground: 240 15% 5%;
+    --sidebar-accent: 240 18% 10%;
+    --sidebar-accent-foreground: 280 100% 92%;
+    --sidebar-border: 280 35% 18%;
+    --sidebar-ring: 280 100% 70%;
   }
 
-  /* Dark mode uses same cyberpunk theme */
   .dark {
-    /* Same variables as root for consistent cyberpunk theme */
+    /* App is always dark — tokens above apply */
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
-  body {
-    @apply bg-background text-foreground font-mono;
-    background-image: url('./assets/cyberpunk-cafe-bg.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+  html, body, #root {
     min-height: 100vh;
     min-height: 100dvh;
   }
 
-  /* Mobile: use scroll instead of fixed to avoid iOS rendering issues */
+  body {
+    @apply bg-background text-foreground font-mono antialiased;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, hsl(280 100% 25% / 0.25), transparent 55%),
+      radial-gradient(ellipse at 80% 100%, hsl(180 100% 25% / 0.18), transparent 55%),
+      url('./assets/cyberpunk-cafe-bg.png');
+    background-size: cover, cover, cover;
+    background-position: center, center, center;
+    background-attachment: fixed, fixed, fixed;
+    background-repeat: no-repeat;
+  }
+
   @media (max-width: 768px) {
     body {
-      background-attachment: scroll;
-      background-size: cover;
-      background-position: center top;
+      background-attachment: scroll, scroll, scroll;
+      background-position: center top, center bottom, center top;
     }
   }
+
+  /* Premium scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: hsl(240 18% 8% / 0.4); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, hsl(280 100% 70% / 0.5), hsl(180 100% 55% / 0.5));
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, hsl(280 100% 70% / 0.85), hsl(180 100% 55% / 0.85));
+  }
 }
 
-/* Custom Cyberpunk Animations */
+/* ============================================================
+   Animations
+   ============================================================ */
 @keyframes neon-pulse {
-  0%, 100% { 
-    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor;
-  }
-  50% { 
-    text-shadow: 0 0 2px currentColor, 0 0 5px currentColor, 0 0 8px currentColor;
-  }
+  0%, 100% { text-shadow: 0 0 calc(5px * var(--neon-intensity)) currentColor, 0 0 calc(10px * var(--neon-intensity)) currentColor, 0 0 calc(15px * var(--neon-intensity)) currentColor; }
+  50% { text-shadow: 0 0 calc(2px * var(--neon-intensity)) currentColor, 0 0 calc(5px * var(--neon-intensity)) currentColor, 0 0 calc(8px * var(--neon-intensity)) currentColor; }
 }
-
 @keyframes cyber-glow {
-  0%, 100% { 
-    box-shadow: var(--glow-purple);
-  }
-  50% { 
-    box-shadow: var(--glow-green);
-  }
+  0%, 100% { box-shadow: var(--glow-purple); }
+  50% { box-shadow: var(--glow-cyan); }
 }
-
 @keyframes matrix-scroll {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100vh); }
 }
-
-/* Custom Utility Classes */
-.neon-text {
-  animation: neon-pulse 2s ease-in-out infinite;
+@keyframes scanline-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(220%); }
+}
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@keyframes lift-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
-.cyber-glow {
-  animation: cyber-glow 3s ease-in-out infinite;
-}
+/* ============================================================
+   Utility classes
+   ============================================================ */
+.neon-text { animation: neon-pulse 2.5s ease-in-out infinite; }
+.cyber-glow { animation: cyber-glow 3.5s ease-in-out infinite; }
 
 .glass-morphism {
-  background: hsl(240 10% 12% / 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid hsl(280 40% 25%);
+  background: hsl(240 18% 7% / 0.65);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid hsl(280 50% 30% / 0.4);
 }
 
+/* Premium holographic card */
+.holo-card {
+  position: relative;
+  background: linear-gradient(180deg, hsl(240 20% 8% / 0.78), hsl(240 18% 6% / 0.82));
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid hsl(280 40% 25% / 0.5);
+  border-radius: var(--radius);
+  box-shadow:
+    inset 0 1px 0 hsl(280 100% 70% / calc(0.15 * var(--neon-intensity))),
+    0 8px 32px hsl(240 20% 0% / 0.5);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.holo-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto -1px;
+  height: 1px;
+  background: var(--gradient-card-edge);
+  opacity: 0.7;
+  pointer-events: none;
+}
+.holo-card-hover:hover {
+  transform: translateY(-2px);
+  border-color: hsl(280 100% 70% / 0.55);
+  box-shadow:
+    inset 0 1px 0 hsl(280 100% 70% / calc(0.25 * var(--neon-intensity))),
+    0 12px 40px hsl(240 20% 0% / 0.6),
+    0 0 calc(40px * var(--neon-intensity)) hsl(280 100% 70% / calc(0.25 * var(--neon-intensity)));
+}
+
+/* Scanline overlay */
+.scanline { position: relative; overflow: hidden; }
+.scanline::after {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0; height: 30%;
+  background: linear-gradient(180deg, transparent, hsl(180 100% 55% / calc(0.08 * var(--neon-intensity))), transparent);
+  pointer-events: none;
+  animation: scanline-move 6s linear infinite;
+}
+
+/* Holographic gradient text */
+.gradient-text-holo {
+  background: linear-gradient(90deg, hsl(320 100% 70%), hsl(280 100% 75%), hsl(180 100% 60%), hsl(280 100% 75%), hsl(320 100% 70%));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* Persona auras */
+.persona-aura-violet   { background: radial-gradient(circle at 50% 70%, hsl(280 100% 70% / 0.35), transparent 70%); }
+.persona-aura-darkbert { background: radial-gradient(circle at 50% 70%, hsl(240 100% 70% / 0.30), transparent 70%); }
+.persona-aura-ghost    { background: radial-gradient(circle at 50% 70%, hsl(180 100% 55% / 0.30), transparent 70%); }
+.persona-aura-demon    { background: radial-gradient(circle at 50% 70%, hsl(0 100% 55% / 0.30), transparent 70%); }
+.persona-aura-wormgpt  { background: radial-gradient(circle at 50% 70%, hsl(140 100% 55% / 0.30), transparent 70%); }
+.persona-aura-venice   { background: radial-gradient(circle at 50% 70%, hsl(35 100% 60% / 0.30), transparent 70%); }
+.persona-aura-fraudgpt { background: radial-gradient(circle at 50% 70%, hsl(345 100% 55% / 0.32), transparent 70%); }
+
+/* Premium neon border (legacy support) */
 .neon-border {
-  border: 2px solid hsl(280 100% 70%);
-  box-shadow: 0 0 10px hsl(280 100% 70% / 0.5), inset 0 0 10px hsl(280 100% 70% / 0.1);
+  border: 1px solid hsl(280 100% 70% / 0.5);
+  box-shadow:
+    0 0 calc(10px * var(--neon-intensity)) hsl(280 100% 70% / calc(0.4 * var(--neon-intensity))),
+    inset 0 0 calc(10px * var(--neon-intensity)) hsl(280 100% 70% / calc(0.08 * var(--neon-intensity)));
+}
+
+/* Status dot pulse */
+.status-dot { animation: status-blink 2s ease-in-out infinite; }
+
+/* Lift-in entry */
+.animate-lift-in { animation: lift-in 0.4s ease-out both; }
+
+/* Holographic animated border ring */
+.holo-border {
+  position: relative;
+  border-radius: var(--radius);
+}
+.holo-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--gradient-holo);
+  background-size: 200% 200%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: gradient-shift 8s ease infinite;
+  opacity: calc(0.5 + 0.5 * var(--neon-intensity));
+  pointer-events: none;
 }
