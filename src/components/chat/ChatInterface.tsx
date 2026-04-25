@@ -30,9 +30,36 @@ interface Message {
   isWebSearch?: boolean
 }
 
-export const ChatInterface = () => {
+interface ChatInterfaceProps {
+  /** Compact mode: tighter padding, no built-in MountRushmore selector */
+  compact?: boolean
+  /** Externally-controlled active assistant */
+  activeAssistant?: AssistantKey
+  /** Notify parent when the user picks a different assistant */
+  onAssistantChange?: (key: AssistantKey) => void
+  /** Hide the built-in MountRushmore selector */
+  hideSelector?: boolean
+  /** Prompt to inject into the input from outside (e.g. from QuickActions) */
+  pendingPrompt?: string
+  /** Called once the pendingPrompt has been consumed */
+  onPromptConsumed?: () => void
+}
+
+export const ChatInterface = ({
+  compact = false,
+  activeAssistant,
+  onAssistantChange,
+  hideSelector = false,
+  pendingPrompt,
+  onPromptConsumed,
+}: ChatInterfaceProps = {}) => {
   const { user, profile } = useAuth()
-  const [assistantKey, setAssistantKey] = useState<AssistantKey>("violet")
+  const [internalKey, setInternalKey] = useState<AssistantKey>("violet")
+  const assistantKey = activeAssistant ?? internalKey
+  const setAssistantKey = (key: AssistantKey) => {
+    if (onAssistantChange) onAssistantChange(key)
+    else setInternalKey(key)
+  }
   const { messages: savedMessages, addMessage, clearHistory, loadConversation, loading: historyLoading } = useChatHistory(assistantKey)
   const { settings: agentSettings } = useAgentSettings(assistantKey)
   
@@ -107,6 +134,23 @@ export const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Reset welcome when externally controlled assistant changes
+  useEffect(() => {
+    if (activeAssistant) {
+      setMessages([getWelcomeMessage(activeAssistant)])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAssistant])
+
+  // Consume externally injected prompt
+  useEffect(() => {
+    if (pendingPrompt && pendingPrompt.trim()) {
+      setInputMessage(pendingPrompt)
+      onPromptConsumed?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPrompt])
 
   const handleDownloadModel = async () => {
     try {
@@ -361,13 +405,14 @@ export const ChatInterface = () => {
         onNewConversation={handleClearHistory}
       />
       
-      {/* Mount Rushmore Selector */}
-      <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={(key) => {
-        setAssistantKey(key)
-        // Reset to persona-specific welcome when switching
-        setMessages([getWelcomeMessage(key)])
-      }} />
-      
+      {/* Mount Rushmore Selector — hidden in compact/dashboard mode */}
+      {!hideSelector && (
+        <MountRushmoreSelector selectedAssistant={assistantKey} onSelectAssistant={(key) => {
+          setAssistantKey(key)
+          // Reset to persona-specific welcome when switching
+          setMessages([getWelcomeMessage(key)])
+        }} />
+      )}
       {/* Chat Messages */}
       <div className={`flex-1 overflow-y-auto p-4 space-y-4 border-t-2 transition-all duration-500 ${chatRoomThemes[assistantKey]} ${chatRoomBorders[assistantKey]}`}>
         {messages.map((message) => (
