@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react"
-import { Wand2, Download, Settings, Video, Image as ImageIcon, Trash2, Upload, X, ArrowRightLeft, Layers, SlidersHorizontal, Sparkles } from "lucide-react"
+import { Wand2, Download, Settings, Video, Image as ImageIcon, Trash2, Upload, X, ArrowRightLeft, Layers, SlidersHorizontal, Sparkles, Cpu, Hash } from "lucide-react"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +13,8 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useImageGallery, GeneratedImage } from "@/hooks/useImageGallery"
 import { ImagePresets } from "./ImagePresets"
 import { ImageModifiers } from "./ImageModifiers"
+import { SDXLPanel } from "./SDXLPanel"
+import { LoraTrainer } from "./LoraTrainer"
 
 type GenerationMode = "text-to-image" | "image-to-image" | "image-to-video"
 
@@ -190,20 +192,27 @@ export const ImageGeneration = () => {
 
       {/* Studio Tabs */}
       <Tabs value={studioTab} onValueChange={setStudioTab}>
-        <TabsList className="grid w-full grid-cols-3 bg-card/50 border border-border/30">
+        <TabsList className="grid w-full grid-cols-5 bg-card/50 border border-border/30">
           <TabsTrigger value="generate" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary font-mono text-xs">
-            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            Generate
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />Generate
+          </TabsTrigger>
+          <TabsTrigger value="sdxl" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary font-mono text-xs">
+            <Cpu className="h-3.5 w-3.5 mr-1.5" />SDXL
+          </TabsTrigger>
+          <TabsTrigger value="lora" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary font-mono text-xs">
+            <Hash className="h-3.5 w-3.5 mr-1.5" />LoRA
           </TabsTrigger>
           <TabsTrigger value="presets" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary font-mono text-xs">
-            <Layers className="h-3.5 w-3.5 mr-1.5" />
-            Presets
+            <Layers className="h-3.5 w-3.5 mr-1.5" />Presets
           </TabsTrigger>
           <TabsTrigger value="modifiers" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary font-mono text-xs">
-            <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
-            Modifiers
+            <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />Modifiers
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="sdxl" className="mt-3"><SDXLPanel /></TabsContent>
+        <TabsContent value="lora" className="mt-3"><LoraTrainer /></TabsContent>
+
 
         {/* Generate Tab */}
         <TabsContent value="generate" className="mt-3">
