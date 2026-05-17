@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useRef } from "react"
 import { ChevronLeft, ChevronRight, Rocket, Settings2 } from "lucide-react"
 import { assistants, type AssistantKey } from "@/lib/assistants"
 import { AIAvatar } from "@/components/chat/AIAvatars"
