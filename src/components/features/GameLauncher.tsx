@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { CipherBreak } from "@/components/games/CipherBreak"
+import { HackThePlanet } from "@/components/games/HackThePlanet"
 import { toast } from "sonner"
 
 const games = [
@@ -24,7 +25,7 @@ const games = [
     genre: "Puzzle / Simulation",
     inspired: "Hackers (1995)",
     color: "#00fff7",
-    status: "coming_soon" as const,
+    status: "playable" as const,
   },
   {
     name: "NEUROMANCER",
@@ -69,6 +70,9 @@ export const GameLauncher = () => {
 
   if (activeGame === "CIPHER_BREAK") {
     return <CipherBreak onBack={() => setActiveGame(null)} />
+  }
+  if (activeGame === "HACK_THE_PLANET") {
+    return <HackThePlanet onBack={() => setActiveGame(null)} />
   }
 
   return (
