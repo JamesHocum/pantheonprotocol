@@ -1,8 +1,10 @@
 import { useRef } from "react"
-import { ChevronLeft, ChevronRight, Rocket } from "lucide-react"
+import { ChevronLeft, ChevronRight, Rocket, Settings2 } from "lucide-react"
 import { assistants, type AssistantKey } from "@/lib/assistants"
 import { AIAvatar } from "@/components/chat/AIAvatars"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { AgentSettings } from "@/components/features/AgentSettings"
 
 interface InstructorRailProps {
   active: AssistantKey
@@ -96,17 +98,27 @@ export const InstructorRail = ({ active, onSelect }: InstructorRailProps) => {
                 </p>
               </div>
 
-              {/* Launch */}
-              <CyberpunkButton
-                variant="launch"
-                size="sm"
-                className="absolute bottom-3 left-3 right-3"
-                onClick={(e) => { e.stopPropagation(); onSelect(key) }}
-                style={{ color, borderColor: `${color}88`, boxShadow: `0 0 calc(14px * var(--neon-intensity)) ${color}55` }}
-              >
-                <Rocket className="h-3 w-3" />
-                {isActive ? "Active" : "Launch"}
-              </CyberpunkButton>
+              {/* Launch + Customize */}
+              <div className="absolute bottom-3 left-3 right-3 flex gap-1.5">
+                <CyberpunkButton
+                  variant="launch" size="sm" className="flex-1"
+                  onClick={(e) => { e.stopPropagation(); onSelect(key) }}
+                  style={{ color, borderColor: `${color}88`, boxShadow: `0 0 calc(14px * var(--neon-intensity)) ${color}55` }}
+                >
+                  <Rocket className="h-3 w-3" />
+                  {isActive ? "Active" : "Launch"}
+                </CyberpunkButton>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <CyberpunkButton variant="ghost" size="iconSm" onClick={(e) => e.stopPropagation()} aria-label="Customize">
+                      <Settings2 className="h-3.5 w-3.5" />
+                    </CyberpunkButton>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg">
+                    <AgentSettings assistantKey={key} />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </article>
           )
         })}
@@ -114,3 +126,4 @@ export const InstructorRail = ({ active, onSelect }: InstructorRailProps) => {
     </section>
   )
 }
+

@@ -36,12 +36,25 @@ serve(async (req) => {
          Provide accurate, up-to-date information with sources when possible.
          Format your response with clear sections and bullet points.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Route through TOR proxy when torMode is enabled and TOR_PROXY_URL is configured.
+    const TOR_PROXY_URL = Deno.env.get('TOR_PROXY_URL');
+    const useProxy = torMode && TOR_PROXY_URL;
+    let fetchUrl = 'https://ai.gateway.lovable.dev/v1/chat/completions';
+    const fetchHeaders: Record<string, string> = {
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+      'Content-Type': 'application/json',
+    };
+    if (useProxy) {
+      // Forward through user-provided HTTP proxy that accepts a `target` query param
+      // (e.g. a Tor-exit relay or SOCKS-to-HTTP bridge).
+      fetchUrl = `${TOR_PROXY_URL.replace(/\/$/, '')}/proxy?target=${encodeURIComponent(fetchUrl)}`;
+      fetchHeaders['X-Tor-Route'] = '1';
+      console.log('Routing AI gateway call through TOR proxy');
+    }
+
+    const response = await fetch(fetchUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers: fetchHeaders,
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [

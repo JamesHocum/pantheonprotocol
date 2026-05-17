@@ -1,32 +1,37 @@
 import { AssistantKey } from "@/lib/assistants"
+import { useAgentSettings } from "@/hooks/useAgentSettings"
 import ladyVioletAvatar from "@/assets/lady-violet-avatar.jpg"
 import darkbertAvatar from "@/assets/darkbert-avatar.jpg"
+import demonAvatarDefault from "@/assets/demongpt-avatar.png"
 
 interface AvatarProps {
   selected?: boolean
+  customUrl?: string | null
 }
 
-export const LadyVioletAvatar = ({ selected }: AvatarProps) => (
+const wrap = (src: string, alt: string, color: string, selected?: boolean) => (
   <img
-    src={ladyVioletAvatar}
-    alt="Lady Violet"
-    className={`w-10 h-10 rounded-full border-2 ${
-      selected ? "border-[#ff00cc] shadow-[0_0_10px_#ff00cc]" : "border-primary"
-    }`}
+    src={src}
+    alt={alt}
+    className={`w-10 h-10 rounded-full border-2 object-cover`}
+    style={{
+      borderColor: selected ? color : "hsl(var(--primary))",
+      boxShadow: selected ? `0 0 10px ${color}` : undefined,
+    }}
   />
 )
 
-export const DarkbertAvatar = ({ selected }: AvatarProps) => (
-  <img
-    src={darkbertAvatar}
-    alt="DarkBERT"
-    className={`w-10 h-10 rounded-full border-2 ${
-      selected ? "border-[#5f5dff] shadow-[0_0_10px_#5f5dff]" : "border-primary"
-    }`}
-  />
-)
+export const LadyVioletAvatar = ({ selected, customUrl }: AvatarProps) =>
+  wrap(customUrl || ladyVioletAvatar, "Lady Violet", "#ff00cc", selected)
 
-export const GhostAvatar = ({ selected }: AvatarProps) => (
+export const DarkbertAvatar = ({ selected, customUrl }: AvatarProps) =>
+  wrap(customUrl || darkbertAvatar, "DarkBERT", "#5f5dff", selected)
+
+export const DemonAvatar = ({ selected, customUrl }: AvatarProps) =>
+  wrap(customUrl || demonAvatarDefault, "DemonGPT", "#ff003c", selected)
+
+export const GhostAvatar = ({ selected, customUrl }: AvatarProps) =>
+  customUrl ? wrap(customUrl, "GhostGPT", "#00fff7", selected) : (
   <svg width="40" height="40" viewBox="0 0 70 70">
     <circle cx="35" cy="35" r="34" fill="#0d1321" stroke="#00fff7" strokeWidth="2"/>
     <ellipse cx="35" cy="40" rx="17" ry="20" fill="#15e6cd" opacity="0.75"/>
@@ -40,60 +45,35 @@ export const GhostAvatar = ({ selected }: AvatarProps) => (
   </svg>
 )
 
-export const DemonAvatar = ({ selected }: AvatarProps) => (
-  <svg width="40" height="40" viewBox="0 0 70 70">
-    <circle cx="35" cy="35" r="34" fill="#1a0f23" stroke="#ff003c" strokeWidth="2"/>
-    <ellipse cx="35" cy="38" rx="18" ry="22" fill="#560018" />
-    <ellipse cx="35" cy="41" rx="13" ry="16" fill="#ad002b" />
-    <path d="M20 23 Q17 10 28 19" stroke="#ff003c" strokeWidth="4" fill="none"/>
-    <path d="M50 23 Q53 10 42 19" stroke="#ff003c" strokeWidth="4" fill="none"/>
-    <ellipse cx="29" cy="42" rx="3.5" ry="2" fill="#fff"/>
-    <ellipse cx="41" cy="42" rx="3.5" ry="2" fill="#fff"/>
-    <circle cx="29" cy="42" r="1.2" fill="#ff003c"/>
-    <circle cx="41" cy="42" r="1.2" fill="#ff003c"/>
-    <path d="M29 52 Q35 57 41 52" stroke="#fff" strokeWidth="2" fill="none"/>
-    {selected && <circle cx="35" cy="35" r="34" fill="none" stroke="#ff003c" strokeWidth="3"/>}
-  </svg>
-)
-
-export const WormAvatar = ({ selected }: AvatarProps) => (
+export const WormAvatar = ({ selected, customUrl }: AvatarProps) =>
+  customUrl ? wrap(customUrl, "WormGPT", "#39ff14", selected) : (
   <svg width="40" height="40" viewBox="0 0 70 70">
     <circle cx="35" cy="35" r="34" fill="#101e13" stroke="#39ff14" strokeWidth="2"/>
     <path d="M25 55 Q32 60 40 54 Q50 48 35 20 Q20 40 32 50" fill="none" stroke="#39ff14" strokeWidth="4"/>
     <circle cx="33" cy="40" r="3.5" fill="#74ff94"/>
     <circle cx="37" cy="46" r="2.7" fill="#0f0"/>
-    <ellipse cx="31" cy="28" rx="2.2" ry="1.5" fill="#fff"/>
-    <ellipse cx="38.5" cy="28" rx="2.2" ry="1.5" fill="#fff"/>
-    <path d="M32 31 L32 34" stroke="#fff" strokeWidth="1"/>
-    <path d="M38 31 L38 34" stroke="#fff" strokeWidth="1"/>
     {selected && <circle cx="35" cy="35" r="34" fill="none" stroke="#39ff14" strokeWidth="3"/>}
   </svg>
 )
 
-export const VeniceAvatar = ({ selected }: AvatarProps) => (
+export const VeniceAvatar = ({ selected, customUrl }: AvatarProps) =>
+  customUrl ? wrap(customUrl, "Venice", "#ffa500", selected) : (
   <svg width="40" height="40" viewBox="0 0 70 70">
     <circle cx="35" cy="35" r="34" fill="#1a1a2e" stroke="#ffa500" strokeWidth="2"/>
     <ellipse cx="35" cy="40" rx="16" ry="18" fill="#ff6b35" opacity="0.8"/>
     <ellipse cx="30" cy="42" rx="3" ry="2" fill="#fff"/>
     <ellipse cx="40" cy="42" rx="3" ry="2" fill="#fff"/>
-    <circle cx="30" cy="42" r="1.2" fill="#ffa500"/>
-    <circle cx="40" cy="42" r="1.2" fill="#ffa500"/>
     <path d="M30 50 Q35 54 40 50" stroke="#ffa500" strokeWidth="2" fill="none"/>
     {selected && <circle cx="35" cy="35" r="34" fill="none" stroke="#ffa500" strokeWidth="3"/>}
   </svg>
 )
 
-export const FraudAvatar = ({ selected }: AvatarProps) => (
+export const FraudAvatar = ({ selected, customUrl }: AvatarProps) =>
+  customUrl ? wrap(customUrl, "FraudGPT", "#ff1744", selected) : (
   <svg width="40" height="40" viewBox="0 0 70 70">
     <circle cx="35" cy="35" r="34" fill="#1a0a0f" stroke="#ff1744" strokeWidth="2"/>
     <path d="M35 20 L45 28 L45 48 L35 55 L25 48 L25 28 Z" fill="#5a0012" stroke="#ff1744" strokeWidth="1.5"/>
     <path d="M35 24 L42 30 L42 46 L35 51 L28 46 L28 30 Z" fill="#8b001f" opacity="0.8"/>
-    <circle cx="32" cy="38" r="2.5" fill="#fff"/>
-    <circle cx="38" cy="38" r="2.5" fill="#fff"/>
-    <circle cx="32" cy="38" r="1" fill="#ff1744"/>
-    <circle cx="38" cy="38" r="1" fill="#ff1744"/>
-    <path d="M32 45 Q35 43 38 45" stroke="#ff1744" strokeWidth="1.5" fill="none"/>
-    <path d="M35 32 L35 36" stroke="#ff1744" strokeWidth="1.5"/>
     {selected && <circle cx="35" cy="35" r="34" fill="none" stroke="#ff1744" strokeWidth="3"/>}
   </svg>
 )
@@ -104,22 +84,16 @@ interface AIAvatarProps {
 }
 
 export const AIAvatar = ({ assistantKey, selected }: AIAvatarProps) => {
+  const { settings } = useAgentSettings(assistantKey)
+  const customUrl = settings?.custom_avatar_url
   switch (assistantKey) {
-    case "violet":
-      return <LadyVioletAvatar selected={selected} />
-    case "darkbert":
-      return <DarkbertAvatar selected={selected} />
-    case "ghost":
-      return <GhostAvatar selected={selected} />
-    case "demon":
-      return <DemonAvatar selected={selected} />
-    case "wormgpt":
-      return <WormAvatar selected={selected} />
-    case "venice":
-      return <VeniceAvatar selected={selected} />
-    case "fraudgpt":
-      return <FraudAvatar selected={selected} />
-    default:
-      return <DarkbertAvatar selected={selected} />
+    case "violet":   return <LadyVioletAvatar selected={selected} customUrl={customUrl} />
+    case "darkbert": return <DarkbertAvatar  selected={selected} customUrl={customUrl} />
+    case "ghost":    return <GhostAvatar     selected={selected} customUrl={customUrl} />
+    case "demon":    return <DemonAvatar     selected={selected} customUrl={customUrl} />
+    case "wormgpt":  return <WormAvatar      selected={selected} customUrl={customUrl} />
+    case "venice":   return <VeniceAvatar    selected={selected} customUrl={customUrl} />
+    case "fraudgpt": return <FraudAvatar     selected={selected} customUrl={customUrl} />
+    default:         return <DarkbertAvatar  selected={selected} customUrl={customUrl} />
   }
 }

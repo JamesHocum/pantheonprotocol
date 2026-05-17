@@ -334,6 +334,60 @@ export type Database = {
         }
         Relationships: []
       }
+      lora_jobs: {
+        Row: {
+          base_model: string
+          created_at: string
+          dataset_path: string
+          error: string | null
+          id: string
+          learning_rate: number
+          name: string
+          output_url: string | null
+          rank: number
+          replicate_training_id: string | null
+          status: string
+          steps: number
+          trigger_word: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_model?: string
+          created_at?: string
+          dataset_path: string
+          error?: string | null
+          id?: string
+          learning_rate?: number
+          name: string
+          output_url?: string | null
+          rank?: number
+          replicate_training_id?: string | null
+          status?: string
+          steps?: number
+          trigger_word?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_model?: string
+          created_at?: string
+          dataset_path?: string
+          error?: string | null
+          id?: string
+          learning_rate?: number
+          name?: string
+          output_url?: string | null
+          rank?: number
+          replicate_training_id?: string | null
+          status?: string
+          steps?: number
+          trigger_word?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       practice_exercises: {
         Row: {
           content: Json
