@@ -147,6 +147,19 @@ export const ImageGeneration = () => {
     } catch (error: any) {
       console.error("Image generation error:", error)
       const msg = error.message || "Failed to generate image"
+      // Credit-exhausted fallback: try again with explicit cheaper free Lovable AI model
+      if (/402|credit|payment|exhausted/i.test(msg)) {
+        toast({ title: "Out of credits — using free fallback model", description: "Switching to default low-cost generator." })
+        try {
+          const { data: fb } = await supabase.functions.invoke("generate-image", { body: { prompt, style: selectedStyle, fallback: true } })
+          if (fb?.imageUrl) {
+            if (user) await saveImageUrl(fb.imageUrl, fb.prompt, fb.style + " (fallback)")
+            else setSessionImages(prev => [{ id: Date.now().toString(), image_url: fb.imageUrl, prompt: fb.prompt, style: fb.style, created_at: new Date().toISOString() }, ...prev])
+            toast({ title: "Generated with fallback model" })
+            return
+          }
+        } catch {}
+      }
       const description = msg.includes("payload") || msg.includes("too large") ? "Image may be too large. Try a smaller image." : msg
       toast({ title: "Generation failed", description, variant: "destructive" })
     } finally { setIsGenerating(false) }
