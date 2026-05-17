@@ -47,15 +47,7 @@ export const GhostAvatar = ({ selected, customUrl }: AvatarProps) =>
 )
 
 export const WormAvatar = ({ selected, customUrl }: AvatarProps) =>
-  customUrl ? wrap(customUrl, "WormGPT", "#39ff14", selected) : (
-  <svg width="40" height="40" viewBox="0 0 70 70">
-    <circle cx="35" cy="35" r="34" fill="#101e13" stroke="#39ff14" strokeWidth="2"/>
-    <path d="M25 55 Q32 60 40 54 Q50 48 35 20 Q20 40 32 50" fill="none" stroke="#39ff14" strokeWidth="4"/>
-    <circle cx="33" cy="40" r="3.5" fill="#74ff94"/>
-    <circle cx="37" cy="46" r="2.7" fill="#0f0"/>
-    {selected && <circle cx="35" cy="35" r="34" fill="none" stroke="#39ff14" strokeWidth="3"/>}
-  </svg>
-)
+  wrap(customUrl || wormAvatarDefault, "WormGPT", "#39ff14", selected)
 
 export const VeniceAvatar = ({ selected, customUrl }: AvatarProps) =>
   customUrl ? wrap(customUrl, "Venice", "#ffa500", selected) : (
