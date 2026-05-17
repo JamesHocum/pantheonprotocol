@@ -3,6 +3,7 @@ import { useAgentSettings } from "@/hooks/useAgentSettings"
 import ladyVioletAvatar from "@/assets/lady-violet-avatar.jpg"
 import darkbertAvatar from "@/assets/darkbert-avatar.jpg"
 import demonAvatarDefault from "@/assets/demongpt-avatar.png"
+import wormAvatarDefault from "@/assets/wormgpt-avatar.png"
 
 interface AvatarProps {
   selected?: boolean
