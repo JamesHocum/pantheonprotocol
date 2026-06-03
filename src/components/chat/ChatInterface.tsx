@@ -595,6 +595,16 @@ export const ChatInterface = ({
             )}
           </div>
           <div className="flex items-center gap-2">
+            <CyberpunkButton
+              variant="ghost"
+              size="sm"
+              onClick={handleVerifyLatest}
+              disabled={verifyingId !== null}
+              title="Verify the latest response with multi-model consensus and export PDF"
+            >
+              {verifyingId ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <ShieldCheck className="h-3 w-3 mr-1" />}
+              Verify Latest
+            </CyberpunkButton>
             {!offlineMode && !isOfflineModelLoading() && (
               <CyberpunkButton variant="ghost" size="sm" onClick={handleDownloadModel}>
                 <Download className="h-3 w-3 mr-1" />
