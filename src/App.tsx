@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { DemoTourProvider } from "@/contexts/DemoTourContext";
+import { DemoTour } from "@/components/features/DemoTour";
 import "@/styles/era-themes.css";
 import MatrixRain from "./components/effects/MatrixRain";
 import Index from "./pages/Index";
@@ -18,17 +20,20 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
-          <TooltipProvider>
-            <MatrixRain />
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
+          <DemoTourProvider>
+            <TooltipProvider>
+              <MatrixRain />
+              <Toaster />
+              <Sonner />
+              <DemoTour />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TooltipProvider>
+          </DemoTourProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>

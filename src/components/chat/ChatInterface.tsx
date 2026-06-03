@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, Image, Zap, Brain, Upload, Download, Wifi, WifiOff, Settings2, Trash2, Shield, Search } from "lucide-react"
+import { Send, Image, Zap, Brain, Upload, Download, Wifi, WifiOff, Settings2, Trash2, Shield, Search, ShieldCheck, FileCheck2, Loader2 } from "lucide-react"
 import { CyberpunkButton } from "@/components/ui/cyberpunk-button"
 import { CyberInput } from "@/components/ui/cyber-input"
 import { Card } from "@/components/ui/card"
@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useChatHistory } from "@/hooks/useChatHistory"
 import { useAgentSettings } from "@/hooks/useAgentSettings"
 import { supabase } from "@/integrations/supabase/client"
+import { downloadVerificationReport } from "@/lib/verificationReport"
 import { toast } from "sonner"
 
 interface Message {
@@ -111,7 +112,40 @@ export const ChatInterface = ({
   const [modelLoadProgress, setModelLoadProgress] = useState<any>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
+  const [verifyingId, setVerifyingId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const handleVerify = async (msg: Message) => {
+    // Find the user prompt that immediately preceded this assistant message
+    const idx = messages.findIndex(m => m.id === msg.id)
+    const priorUser = [...messages.slice(0, idx)].reverse().find(m => m.type === "user")
+    const prompt = priorUser?.content || "(no prompt captured)"
+    setVerifyingId(msg.id)
+    const t = toast.loading("Running multi-model verification…")
+    try {
+      await downloadVerificationReport({
+        prompt,
+        originalResponse: msg.content,
+        systemPrompt: assistants[msg.assistantKey ?? assistantKey].systemPrompt,
+        assistantKey: msg.assistantKey ?? assistantKey,
+        originalModel: selectedModel,
+      })
+      toast.success("Verification report downloaded", { id: t })
+    } catch (e: any) {
+      toast.error(`Verification failed: ${e?.message ?? e}`, { id: t })
+    } finally {
+      setVerifyingId(null)
+    }
+  }
+
+  const handleVerifyLatest = () => {
+    const last = [...messages].reverse().find(m => m.type === "darkbert" && m.id !== "welcome")
+    if (!last) {
+      toast.error("No assistant response to verify yet.")
+      return
+    }
+    handleVerify(last)
+  }
 
   // Load saved messages when authenticated
   useEffect(() => {
@@ -446,6 +480,24 @@ export const ChatInterface = ({
                 </span>
               </div>
               <p className="text-sm leading-relaxed font-mono whitespace-pre-wrap">{message.content}</p>
+              {message.type === "darkbert" && message.id !== "welcome" && message.content && (
+                <div className="mt-2 pt-2 border-t border-border/20 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => handleVerify(message)}
+                    disabled={verifyingId === message.id}
+                    className="text-[10px] font-mono uppercase tracking-widest text-primary/80 hover:text-primary inline-flex items-center gap-1 disabled:opacity-50"
+                    title="Run multi-model verification and download PDF report"
+                  >
+                    {verifyingId === message.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <FileCheck2 className="h-3 w-3" />
+                    )}
+                    Verify · PDF
+                  </button>
+                </div>
+              )}
             </Card>
 
             {message.type === "user" && (
@@ -543,6 +595,16 @@ export const ChatInterface = ({
             )}
           </div>
           <div className="flex items-center gap-2">
+            <CyberpunkButton
+              variant="ghost"
+              size="sm"
+              onClick={handleVerifyLatest}
+              disabled={verifyingId !== null}
+              title="Verify the latest response with multi-model consensus and export PDF"
+            >
+              {verifyingId ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <ShieldCheck className="h-3 w-3 mr-1" />}
+              Verify Latest
+            </CyberpunkButton>
             {!offlineMode && !isOfflineModelLoading() && (
               <CyberpunkButton variant="ghost" size="sm" onClick={handleDownloadModel}>
                 <Download className="h-3 w-3 mr-1" />
