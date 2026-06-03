@@ -29,6 +29,7 @@ import { MessageSquare, Image, User, Settings, Mic, ExternalLink, GraduationCap,
 import { useAuth } from "@/contexts/AuthContext"
 import type { Course } from "@/hooks/useCourses"
 import type { AssistantKey } from "@/lib/assistants"
+import { useDemoTour } from "@/contexts/DemoTourContext"
 
 const Index = () => {
   const { loading } = useAuth()
@@ -38,6 +39,16 @@ const Index = () => {
   const [mainTab, setMainTab] = useState("chat")
   const [activeAssistant, setActiveAssistant] = useState<AssistantKey>("violet")
   const [pendingPrompt, setPendingPrompt] = useState<string | undefined>(undefined)
+  const { step: tourStep, running: tourRunning } = useDemoTour()
+
+  useEffect(() => {
+    if (!tourRunning || !tourStep) return
+    setMainTab(tourStep.tab)
+    if (tourStep.tab === "chat") {
+      setActiveAssistant("violet")
+      if (tourStep.prompt) setPendingPrompt(tourStep.prompt)
+    }
+  }, [tourRunning, tourStep])
 
   useEffect(() => {
     const isInstalled = window.matchMedia("(display-mode: standalone)").matches
@@ -105,6 +116,7 @@ const Index = () => {
                   <TabsTrigger
                     key={v}
                     value={v}
+                    data-tour-id={`tour-tab-${v}`}
                     className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.4)] rounded-md text-xs tracking-wider uppercase font-mono"
                   >
                     <Icon className="h-4 w-4 mr-1.5" />

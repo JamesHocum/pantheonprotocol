@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { XPDisplay } from "@/components/features/XPDisplay"
 import { useAuth } from "@/contexts/AuthContext"
 import { useTheme } from "@/contexts/ThemeContext"
+import { DemoTourTrigger } from "@/components/features/DemoTour"
 import cafeSign from "@/assets/cafe-neon-sign.jpg"
 
 export const TopUtilityBar = () => {
@@ -80,6 +81,7 @@ export const TopUtilityBar = () => {
 
       {/* Right cluster */}
       <div className="flex items-center gap-3 lg:justify-end flex-wrap">
+        <DemoTourTrigger />
         {user && <XPDisplay compact />}
 
         {/* Neon Intensity */}
