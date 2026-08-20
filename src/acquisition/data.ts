@@ -146,42 +146,52 @@ const TV = "To Verify" as const;
 export const defaultPackage: PantheonPackage = {
   project: {
     name: "Pantheon Protocol",
-    tagline: "AI-Powered Cybersecurity Training & Collaboration Platform",
+    tagline: "AI-Powered Cybersecurity Training & Verification Platform",
     oneSentence:
-      "Pantheon Protocol is a persona-driven AI cybersecurity training and collaboration platform concept, offered as an asset sale including available source code, product architecture, design direction and documentation.",
+      "Pantheon Protocol is an existing, working AI cybersecurity training and verification application with a live interactive demonstration, offered as an asset sale subject to verification and transferability.",
     subtitle:
-      "An existing product foundation for organizations seeking to accelerate the development of AI-assisted cybersecurity education, training, and collaboration.",
+      "An existing, working product foundation combining AI-assisted cybersecurity interaction, multi-model verification, consensus analysis, trust scoring, governance, divergence detection, and exportable verification reports.",
     overview:
-      "Pantheon Protocol combines cybersecurity education with AI interaction. The product concept centers on persona-driven AI mentorship, gamified learning progression, structured training modules, and collaborative/classroom-style learning, with an architecture intended to be extended with additional training environments over time.",
+      "Pantheon Protocol combines persona-based AI cybersecurity interaction with a multi-model verification workflow. A prospective buyer can open the live demonstration, run a guided demo tour, interact with the AI mentor, trigger verification across independent models, and export a verification report — rather than evaluating concept documents alone.",
     saleNote:
-      "This is an asset sale, not a sale of an operating business. No customers, revenue, contracts, certifications, or operational guarantees are represented. Every included component is subject to verification and transferability confirmation during due diligence.",
+      "This is an asset sale, not a sale of an operating business. No customers, revenue, contracts, certifications, or production-scale operations are represented. Every included component is subject to verification and transferability confirmation during due diligence.",
     remainingWork:
-      "To Verify — the completion state of individual subsystems is being inventoried. See Current State for a per-category maturity assessment.",
+      "To Verify — additional production hardening, deployment configuration, account transfer, scaling and third-party service configuration may be required depending on the acquiring party's intended use.",
     reasonForSale: "To Verify — owner to provide statement prior to buyer discussions.",
+    demoUrl: "/",
+    statusHeadline: "Live demonstration available",
+    statusBody:
+      "The current application contains an operational interactive demonstration and implemented verification workflow. Additional production hardening, deployment configuration, account transfer, scaling, and third-party service configuration may be required depending on the acquiring party's intended use.",
   },
   acquisition: {
-    askingPrice: "To Verify",
+    askingPrice: "To Be Determined",
     assetStatus: "Available for acquisition",
     availability: "Immediate discussions",
-    transferTimeline: "To Verify",
-    includedSupport: "To Verify",
-    negotiability: "To Verify",
+    transferTimeline: "To Be Determined",
+    includedSupport: "To Be Determined",
+    negotiability: "To Be Determined",
   },
   contact: {
     contactName: "Not Provided",
     contactRole: "Owner / Seller",
     inquiryDestination: "",
-    responseTime: "To Verify",
+    responseTime: "To Be Determined",
     preferredChannel: "Inquiry form",
   },
   capabilities: [
-    { id: "cap-1", title: "AI Mentorship", description: "Guided, conversational instruction concept in which AI mentors walk learners through security topics." },
-    { id: "cap-2", title: "Cybersecurity Training", description: "Structured training content and exercises oriented toward defensive security education." },
-    { id: "cap-3", title: "Gamified Learning", description: "Progression, achievement and reward mechanics designed to sustain learner engagement." },
-    { id: "cap-4", title: "Persona-Based Interaction", description: "Distinct AI personas give each learning track its own voice, tone and framing." },
-    { id: "cap-5", title: "Collaborative Learning", description: "Classroom / cohort oriented concepts for group progress and instructor oversight." },
-    { id: "cap-6", title: "Extensible Platform Architecture", description: "Product architecture intended to accommodate additional training environments and modules." },
+    { id: "cap-1", title: "AI Cybersecurity Interaction", description: "Conversational interface for working through cybersecurity topics with an AI counterpart." },
+    { id: "cap-2", title: "Persona-Based AI Mentorship", description: "Distinct AI mentor personas give each track its own voice, framing and instructional tone." },
+    { id: "cap-3", title: "Multi-Model Verification", description: "A response can be re-run independently across separate models for comparison." },
+    { id: "cap-4", title: "Consensus Analysis", description: "Independent model outputs are judged against each other to establish agreement." },
+    { id: "cap-5", title: "Trust Scoring", description: "Verification output includes a trust score summarizing agreement strength." },
+    { id: "cap-6", title: "Hallucination Risk Detection", description: "Verification output includes a hallucination-risk assessment for the reviewed answer." },
+    { id: "cap-7", title: "Governance Analysis", description: "A governance stream records the verification steps taken for the reviewed response." },
+    { id: "cap-8", title: "Divergence Detection", description: "Points where independent models disagree are surfaced for inspection." },
+    { id: "cap-9", title: "Verification Reports", description: "Verification results are compiled into a structured report." },
+    { id: "cap-10", title: "PDF Export", description: "Reports can be exported as a multi-page PDF from the application." },
+    { id: "cap-11", title: "Guided Demo Mode", description: "A spotlight/tooltip tour walks a first-time viewer through the product with auto progression." },
   ],
+
   assets: [
     { id: id("a", 1), asset: "Frontend source code", category: "Software", description: "Client application source for the platform interface.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
     { id: id("a", 2), asset: "Backend source / server logic", category: "Software", description: "Server-side logic, if applicable.", status: "Unknown", transferable: "Needs Review", location: TV, evidence: TV, notes: "Scope to be confirmed." },
