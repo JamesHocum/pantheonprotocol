@@ -47,7 +47,7 @@ export interface Evidence {
 export interface DueDiligenceItem {
   id: string;
   item: string;
-  status: VerificationStatus | "Not Included";
+  status: VerificationStatus | "Not Included" | "Requires Review";
   notes: string;
   evidence: string;
   lastVerified: string;
@@ -117,7 +117,11 @@ export interface ProjectSettings {
   saleNote: string;
   remainingWork: string;
   reasonForSale: string;
+  demoUrl: string;
+  statusHeadline: string;
+  statusBody: string;
 }
+
 
 export interface PantheonPackage {
   project: ProjectSettings;
@@ -142,42 +146,52 @@ const TV = "To Verify" as const;
 export const defaultPackage: PantheonPackage = {
   project: {
     name: "Pantheon Protocol",
-    tagline: "AI-Powered Cybersecurity Training & Collaboration Platform",
+    tagline: "AI-Powered Cybersecurity Training & Verification Platform",
     oneSentence:
-      "Pantheon Protocol is a persona-driven AI cybersecurity training and collaboration platform concept, offered as an asset sale including available source code, product architecture, design direction and documentation.",
+      "Pantheon Protocol is an existing, working AI cybersecurity training and verification application with a live interactive demonstration, offered as an asset sale subject to verification and transferability.",
     subtitle:
-      "An existing product foundation for organizations seeking to accelerate the development of AI-assisted cybersecurity education, training, and collaboration.",
+      "An existing, working product foundation combining AI-assisted cybersecurity interaction, multi-model verification, consensus analysis, trust scoring, governance, divergence detection, and exportable verification reports.",
     overview:
-      "Pantheon Protocol combines cybersecurity education with AI interaction. The product concept centers on persona-driven AI mentorship, gamified learning progression, structured training modules, and collaborative/classroom-style learning, with an architecture intended to be extended with additional training environments over time.",
+      "Pantheon Protocol combines persona-based AI cybersecurity interaction with a multi-model verification workflow. A prospective buyer can open the live demonstration, run a guided demo tour, interact with the AI mentor, trigger verification across independent models, and export a verification report — rather than evaluating concept documents alone.",
     saleNote:
-      "This is an asset sale, not a sale of an operating business. No customers, revenue, contracts, certifications, or operational guarantees are represented. Every included component is subject to verification and transferability confirmation during due diligence.",
+      "This is an asset sale, not a sale of an operating business. No customers, revenue, contracts, certifications, or production-scale operations are represented. Every included component is subject to verification and transferability confirmation during due diligence.",
     remainingWork:
-      "To Verify — the completion state of individual subsystems is being inventoried. See Current State for a per-category maturity assessment.",
+      "To Verify — additional production hardening, deployment configuration, account transfer, scaling and third-party service configuration may be required depending on the acquiring party's intended use.",
     reasonForSale: "To Verify — owner to provide statement prior to buyer discussions.",
+    demoUrl: "/",
+    statusHeadline: "Live demonstration available",
+    statusBody:
+      "The current application contains an operational interactive demonstration and implemented verification workflow. Additional production hardening, deployment configuration, account transfer, scaling, and third-party service configuration may be required depending on the acquiring party's intended use.",
   },
   acquisition: {
-    askingPrice: "To Verify",
+    askingPrice: "To Be Determined",
     assetStatus: "Available for acquisition",
     availability: "Immediate discussions",
-    transferTimeline: "To Verify",
-    includedSupport: "To Verify",
-    negotiability: "To Verify",
+    transferTimeline: "To Be Determined",
+    includedSupport: "To Be Determined",
+    negotiability: "To Be Determined",
   },
   contact: {
     contactName: "Not Provided",
     contactRole: "Owner / Seller",
     inquiryDestination: "",
-    responseTime: "To Verify",
+    responseTime: "To Be Determined",
     preferredChannel: "Inquiry form",
   },
   capabilities: [
-    { id: "cap-1", title: "AI Mentorship", description: "Guided, conversational instruction concept in which AI mentors walk learners through security topics." },
-    { id: "cap-2", title: "Cybersecurity Training", description: "Structured training content and exercises oriented toward defensive security education." },
-    { id: "cap-3", title: "Gamified Learning", description: "Progression, achievement and reward mechanics designed to sustain learner engagement." },
-    { id: "cap-4", title: "Persona-Based Interaction", description: "Distinct AI personas give each learning track its own voice, tone and framing." },
-    { id: "cap-5", title: "Collaborative Learning", description: "Classroom / cohort oriented concepts for group progress and instructor oversight." },
-    { id: "cap-6", title: "Extensible Platform Architecture", description: "Product architecture intended to accommodate additional training environments and modules." },
+    { id: "cap-1", title: "AI Cybersecurity Interaction", description: "Conversational interface for working through cybersecurity topics with an AI counterpart." },
+    { id: "cap-2", title: "Persona-Based AI Mentorship", description: "Distinct AI mentor personas give each track its own voice, framing and instructional tone." },
+    { id: "cap-3", title: "Multi-Model Verification", description: "A response can be re-run independently across separate models for comparison." },
+    { id: "cap-4", title: "Consensus Analysis", description: "Independent model outputs are judged against each other to establish agreement." },
+    { id: "cap-5", title: "Trust Scoring", description: "Verification output includes a trust score summarizing agreement strength." },
+    { id: "cap-6", title: "Hallucination Risk Detection", description: "Verification output includes a hallucination-risk assessment for the reviewed answer." },
+    { id: "cap-7", title: "Governance Analysis", description: "A governance stream records the verification steps taken for the reviewed response." },
+    { id: "cap-8", title: "Divergence Detection", description: "Points where independent models disagree are surfaced for inspection." },
+    { id: "cap-9", title: "Verification Reports", description: "Verification results are compiled into a structured report." },
+    { id: "cap-10", title: "PDF Export", description: "Reports can be exported as a multi-page PDF from the application." },
+    { id: "cap-11", title: "Guided Demo Mode", description: "A spotlight/tooltip tour walks a first-time viewer through the product with auto progression." },
   ],
+
   assets: [
     { id: id("a", 1), asset: "Frontend source code", category: "Software", description: "Client application source for the platform interface.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
     { id: id("a", 2), asset: "Backend source / server logic", category: "Software", description: "Server-side logic, if applicable.", status: "Unknown", transferable: "Needs Review", location: TV, evidence: TV, notes: "Scope to be confirmed." },
@@ -207,20 +221,30 @@ export const defaultPackage: PantheonPackage = {
     { id: id("a", 26), asset: "Demonstrations", category: "Other Assets", description: "Walkthroughs or recorded demos, if available.", status: "Unknown", transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
     { id: id("a", 27), asset: "Design files", category: "Other Assets", description: "Source design artifacts, if available.", status: "Unknown", transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
     { id: id("a", 28), asset: "Supporting project assets", category: "Other Assets", description: "Images, icons and misc. project files.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
+    { id: id("a", 29), asset: "Live demonstration experience", category: "Product", description: "The interactive demo, including guided Demo Mode tour with auto progression.", status: TV, transferable: "Needs Review", location: TV, evidence: "Live demo link", notes: "" },
+    { id: id("a", 30), asset: "Verification workflow", category: "AI", description: "End-to-end multi-model verification flow implemented in the application.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
+    { id: id("a", 31), asset: "Model-routing implementation", category: "AI", description: "Routing of requests to independent models for rerun and comparison.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
+    { id: id("a", 32), asset: "Consensus workflow", category: "AI", description: "Consensus judging across independent model responses.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
+    { id: id("a", 33), asset: "Trust & hallucination analysis", category: "AI", description: "Trust scoring and hallucination-risk assessment logic.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
+    { id: id("a", 34), asset: "Governance & divergence analysis", category: "AI", description: "Governance stream and divergence detection output.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
+    { id: id("a", 35), asset: "Verification report generation", category: "AI", description: "Report compilation and multi-page PDF export.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "" },
+    { id: id("a", 36), asset: "Edge functions", category: "Software", description: "Server-side functions supporting chat and verification.", status: TV, transferable: "Needs Review", location: TV, evidence: TV, notes: "Credentials transferred separately through secure process." },
   ],
   technology: [
     { id: "t-1", field: "Frontend", value: TV, status: TV },
-    { id: "t-2", field: "Backend", value: TV, status: TV },
-    { id: "t-3", field: "Database", value: TV, status: TV },
-    { id: "t-4", field: "AI Providers", value: TV, status: TV },
-    { id: "t-5", field: "Hosting", value: TV, status: TV },
-    { id: "t-6", field: "Authentication", value: TV, status: TV },
-    { id: "t-7", field: "Deployment", value: TV, status: TV },
-    { id: "t-8", field: "Repository", value: TV, status: TV },
-    { id: "t-9", field: "Domain", value: TV, status: TV },
+    { id: "t-2", field: "Backend / Edge Functions", value: TV, status: TV },
+    { id: "t-3", field: "AI Models", value: TV, status: TV },
+    { id: "t-4", field: "Verification Architecture", value: TV, status: TV },
+    { id: "t-5", field: "PDF Generation", value: TV, status: TV },
+    { id: "t-6", field: "Deployment", value: TV, status: TV },
+    { id: "t-7", field: "Repository", value: TV, status: TV },
+    { id: "t-8", field: "Database", value: TV, status: TV },
+    { id: "t-9", field: "Authentication", value: TV, status: TV },
     { id: "t-10", field: "Third-Party Dependencies", value: TV, status: TV },
-    { id: "t-11", field: "Licensing", value: TV, status: TV },
+    { id: "t-11", field: "Domain", value: TV, status: TV },
+    { id: "t-12", field: "Licensing", value: TV, status: TV },
   ],
+
   maturity: [
     { id: "m-1", category: "Concept", status: "Unknown", note: "" },
     { id: "m-2", category: "Design", status: "Unknown", note: "" },
@@ -232,33 +256,35 @@ export const defaultPackage: PantheonPackage = {
     { id: "m-8", category: "Deployment", status: "Unknown", note: "" },
     { id: "m-9", category: "Documentation", status: "Unknown", note: "" },
     { id: "m-10", category: "Branding", status: "Unknown", note: "" },
-    { id: "m-11", category: "Demo Readiness", status: "Unknown", note: "" },
+    { id: "m-11", category: "Demo Readiness", status: "Partial", note: "Interactive demonstration and guided Demo Mode present in the current application." },
+    { id: "m-12", category: "Verification Workflow", status: "Partial", note: "Multi-model verification, consensus, trust/hallucination output and PDF export implemented; production hardening to verify." },
   ],
   buyers: [
-    { id: "b-1", title: "Cybersecurity training companies", rationale: "Add a persona-driven AI mentorship layer to an existing training catalog." },
-    { id: "b-2", title: "Security consultancies", rationale: "Package internal enablement and client training under an owned product." },
-    { id: "b-3", title: "AI education companies", rationale: "Enter the security vertical with a ready product concept and design direction." },
-    { id: "b-4", title: "Corporate learning platforms", rationale: "Differentiate compliance-heavy catalogs with gamified, conversational learning." },
-    { id: "b-5", title: "Cybersecurity SaaS companies", rationale: "Attach an education surface to an existing security product for retention and upsell." },
-    { id: "b-6", title: "AI developer-tool companies", rationale: "Reuse the persona and prompt architecture for guided technical learning." },
-    { id: "b-7", title: "EdTech companies", rationale: "Acquire a differentiated vertical concept with an established visual identity." },
-    { id: "b-8", title: "Startup founders", rationale: "Start from an existing product foundation instead of a blank repository." },
+    { id: "b-1", title: "Cybersecurity companies", rationale: "Attach an AI-assisted training and verification surface to an existing security portfolio." },
+    { id: "b-2", title: "Security training organizations", rationale: "Add persona-driven AI mentorship and verification to an existing training catalog." },
+    { id: "b-3", title: "AI governance companies", rationale: "Reuse the consensus, trust-scoring and governance/divergence workflow." },
+    { id: "b-4", title: "AI education platforms", rationale: "Enter the security vertical with a working product foundation." },
+    { id: "b-5", title: "Corporate learning companies", rationale: "Differentiate compliance-heavy catalogs with conversational, verified learning." },
+    { id: "b-6", title: "Security consultancies", rationale: "Package internal enablement and client training under an owned product." },
+    { id: "b-7", title: "AI SaaS founders", rationale: "Start from an implemented verification architecture instead of a blank repository." },
+    { id: "b-8", title: "Developers seeking a product foundation", rationale: "Acquire an existing application, design system and workflow set." },
   ],
   dueDiligence: [
     "Source-code ownership",
-    "Third-party licenses",
+    "Intellectual-property ownership",
     "Repository access",
     "Domain ownership",
     "Hosting",
-    "API dependencies",
+    "Third-party services",
     "AI provider dependencies",
-    "Open-source dependencies",
+    "Open-source licenses",
     "Brand assets",
     "Design assets",
     "Documentation",
     "Deployment process",
-    "Credentials transfer",
-    "Intellectual-property transfer",
+    "Credentials",
+    "Transfer requirements",
+
   ].map((item, i) => ({
     id: `dd-${i + 1}`,
     item,
