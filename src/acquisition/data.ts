@@ -117,7 +117,11 @@ export interface ProjectSettings {
   saleNote: string;
   remainingWork: string;
   reasonForSale: string;
+  demoUrl: string;
+  statusHeadline: string;
+  statusBody: string;
 }
+
 
 export interface PantheonPackage {
   project: ProjectSettings;
