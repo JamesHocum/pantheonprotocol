@@ -47,7 +47,7 @@ export interface Evidence {
 export interface DueDiligenceItem {
   id: string;
   item: string;
-  status: VerificationStatus | "Not Included";
+  status: VerificationStatus | "Not Included" | "Requires Review";
   notes: string;
   evidence: string;
   lastVerified: string;
