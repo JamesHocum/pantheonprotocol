@@ -27,19 +27,25 @@ const App = () => (
       <AuthProvider>
         <ThemeProvider>
           <DemoTourProvider>
-            <TooltipProvider>
-              <MatrixRain />
-              <Toaster />
-              <Sonner />
-              <DemoTour />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </TooltipProvider>
+            <AcquisitionProvider>
+              <TooltipProvider>
+                <MatrixRain />
+                <Toaster />
+                <Sonner />
+                <DemoTour />
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/acquire" element={<AcquisitionHub />} />
+                  <Route path="/acquire/brief" element={<AcquisitionBrief />} />
+                  <Route path="/acquire/admin" element={<AcquisitionAdmin />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </TooltipProvider>
+            </AcquisitionProvider>
           </DemoTourProvider>
+
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
