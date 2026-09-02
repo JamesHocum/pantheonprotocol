@@ -8,10 +8,16 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { DemoTourProvider } from "@/contexts/DemoTourContext";
 import { DemoTour } from "@/components/features/DemoTour";
 import "@/styles/era-themes.css";
+import "@/styles/acquisition-print.css";
 import MatrixRain from "./components/effects/MatrixRain";
+import { AcquisitionProvider } from "@/acquisition/store";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AcquisitionHub from "./pages/acquisition/AcquisitionHub";
+import AcquisitionBrief from "./pages/acquisition/AcquisitionBrief";
+import AcquisitionAdmin from "./pages/acquisition/AcquisitionAdmin";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
